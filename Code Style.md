@@ -20,7 +20,7 @@ As a rule of thumb, comments should often be explaining _why_ something is being
 
 Comments can either be in-line or prefixing the block they refer to, like so:
 
-    someWeirdFunctionCall("esoteric string") --Why we're doing this, or what it's doing if that's not clear
+    someWeirdFunctionCall "esoteric string" --Why we're doing this, or what it's doing if that's not clear
 
 or
 
@@ -48,8 +48,9 @@ Put spaces between operators, unless taking the space out would make the code cl
 - If a function is "stable", meaning its arguments and return values are unlikely to change, put a doc comment before it saying what it does.
     - If the function returns nothing, use `@return nil` for the return tag.
 - If a function takes no arguments, don't use the colon syntax, because the self parameter is unnecessary, and that may not be clear.
-- If a function takes only a singular string parameter or a singular table parameter, omit the parentheses.
+- If a function takes only a singular string parameter or a singular table parameter, omit the parentheses and put a space between the argument and the function.
     - If you think the function may need parentheses later or are not sure, do not omit the parentheses.
+    - Ex: `error "You borked it up!"`
 
 ### Variable Naming
 
