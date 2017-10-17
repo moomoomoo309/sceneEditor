@@ -71,5 +71,5 @@ Put spaces between operators, unless taking the space out would make the code cl
         - If it's a string literal instead of a variable, just encapsulate it in parentheses first.
             - Ex: `("Hi %s!"):format(yourName)`
 - Don't use string.len, not even with the variable and the colon operator (`myStringVar:len()`). Use the length operator `#` instead. (`#myStringVar`)
-- If you need to load a file, like sprite loading abstractSprite, use require, even if the file's been loaded already.
+- If you need to load a file, like sprite loading object, use require, even if the file's been loaded already.
     - This makes it clear what dependencies the file has.
