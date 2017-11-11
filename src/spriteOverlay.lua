@@ -35,7 +35,7 @@ function spriteOverlay:new(spriteInstOrArgs, parent)
 end
 
 --- Attaches this spriteOverlay onto the given sprite. Will error if a sprite is already attached.
---- @tparam parent sprite The sprite this spriteOverlay should be attached to.
+--- @tparam sprite parent The sprite this spriteOverlay should be attached to.
 --- @tparam string|number key The key used when inserting this into its parent.
 --- @return nil
 function spriteOverlay:attach(parent, key)
@@ -84,7 +84,7 @@ end
 --- if ox / oy is a function, it is treated the same as in sprite.
 --- @return nil
 function spriteOverlay:draw()
-    local x, y, w, h, rotation, flipHorizontal, flipVertical, ox, oy
+    local x, y, w, h, rotation, flipHorizontal, flipVertical, ox, oy, shader
     local parent = self.parent
     assert(parent, ("Sprite Overlay \"%s\" has no parent!"):format(self.imagePath))
     x = self.x + parent.x
@@ -98,9 +98,11 @@ function spriteOverlay:draw()
     assert(type(self.oy) == "number" or type(self.oy) == "function", ("Number or function expected, got %s."):format(type(self.oy)))
     ox = type(self.ox) == "number" and self.ox * w / self.sx or self:ox()
     oy = type(self.oy) == "number" and self.oy * h / self.sy or self:oy()
+    shader = self.shader
+    assert((shader.type and shader:type() or type(shader)) == "shader", ("Shader expected, got %s."):format(shader.type and shader:type() or type(shader)))
 
     --_draw is inherited from sprite.
-    return self:_draw(x, y, w, h, rotation, flipHorizontal, flipVertical, ox, oy)
+    return self:_draw(x, y, w, h, rotation, flipHorizontal, flipVertical, ox, oy, shader)
 end
 
 return setmetatable(spriteOverlay, { __index = sprite, __call = spriteOverlay.new })

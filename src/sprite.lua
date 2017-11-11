@@ -82,7 +82,8 @@ function sprite:new(args)
         anisotropy = args.anisotropy or 0,
         animPath = args.animPath or (args.imagePath and args.imagePath:find(".", nil, true) and args.imagePath:sub(1, -args.imagePath:reverse():find(".", nil, true)) .. "anim") or false,
         overlays = args.overlays or {},
-        overlayKeys = {}
+        overlayKeys = {},
+        shader = args.shader
     }
     assert(obj, "Object could not be created in sprite.")
     obj.class = sprite --Update the class (This does call the callback in object!)
@@ -177,7 +178,7 @@ end
 --- Draws the given sprite.
 --- @return nil
 function sprite:draw()
-    self:_draw(self.x, self.y, self.w, self.h, self.rotation, self.flipHorizontal, self.flipVertical, type(self.ox) == "function" and self:ox() or self.ox, type(self.oy) == "function" and self:oy() or self.oy)
+    return self:_draw(self.x, self.y, self.w, self.h, self.rotation, self.flipHorizontal, self.flipVertical, type(self.ox) == "function" and self:ox() or self.ox, type(self.oy) == "function" and self:oy() or self.oy, self.shader)
 end
 
 --- The method which actually draws the sprite internally. Used by sprite and spriteOverlay.
@@ -190,13 +191,15 @@ end
 --- @tparam boolean flipVertical Whether or not the sprite should be flipped vertically.
 --- @tparam number ox The x coordinate of the origin used for rotation, scaling, and other matrix transformations.
 --- @tparam number oy The y coordinate of the origin used for rotation, scaling, and other matrix transformations.
+--- @tparam shader shader The shader to use when drawing this sprite.
 --- @return nil
-function sprite:_draw(x, y, w, h, rotation, flipHorizontal, flipVertical, ox, oy)
+function sprite:_draw(x, y, w, h, rotation, flipHorizontal, flipVertical, ox, oy, shader)
     assert(type(self) == "table" and self:extends "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
 
     if not self.visible then
         return
     end
+    love.graphics.setShader(shader)
 
     local img, quad, currentTime, animIndex
 
@@ -253,6 +256,7 @@ function sprite:_draw(x, y, w, h, rotation, flipHorizontal, flipVertical, ox, oy
     if oldColor then
         love.graphics.setColor(oldColor)
     end
+    love.graphics.setShader()
 
     --Draw the overlays, if any exist.
     for i = 1, #self.overlayKeys do
