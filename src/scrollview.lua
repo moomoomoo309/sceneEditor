@@ -11,6 +11,7 @@ function scrollview.new(args)
         h = args.h or 0,
         scrollx = args.scrollx or 0,
         scrolly = args.scrolly or 0,
+        children = args.children or {}
     }
     assert(type(obj.x) == "number", ("Number expected, got %s."):format(type(obj.x)))
     assert(type(obj.y) == "number", ("Number expected, got %s."):format(type(obj.y)))
@@ -18,12 +19,21 @@ function scrollview.new(args)
     assert(type(obj.h) == "number", ("Number expected, got %s."):format(type(obj.h)))
     assert(type(obj.scrollx) == "number", ("Number expected, got %s."):format(type(obj.scrollx)))
     assert(type(obj.scrolly) == "number", ("Number expected, got %s."):format(type(obj.scrolly)))
+    assert(type(obj.children) == "table", ("Table expected, got %s."):format(type(obj.children)))
     return obj
 end
 
 function scrollview:draw()
     local x, y, w, h, scrollx, scrolly = self.x, self.y, self.w, self.h, self.scrollx, self.scrolly
-    love.graphics.translate(x + w, y + h,)
+    love.graphics.translate(x + w + scrollx, y + h + scrolly)
+    for _, v in pairs(self.children) do
+        if v.draw then
+            v:draw()
+        else
+            print(("Warning, object (%s) in scrollview has no draw!"):format(v.type))
+        end
+    end
+    love.graphics.translate(-x - w - scrollx, -y - h - scrolly)
 end
 
 return scrollview

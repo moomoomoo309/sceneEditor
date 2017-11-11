@@ -130,18 +130,13 @@ end
 --- @tparam sprite that The sprite to copy.
 --- @tparam table args If noBatch is true, it will not use a spriteBatch to copy the sprite.
 --- @treturn sprite The copied sprite.
-function sprite:copy(that, args)
-    if not args and self and that then
-        --Allows you to call sprite.copy or sprite:copy.
-        that, args = self, that
-    end
-
-    assert(type(that) == "table" and that:extends "sprite", ("Sprite expected, got %s."):format(type(that) == "table" and that.type or type(that)))
+function sprite:copy(args)
+    assert(type(self) == "table" and self:extends "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
     assert(type(args) == "table", ("Table expected, got %s."):format(args))
 
     local this = {}
     local reusableFields = { "animations" } --Tables that should be shared amongst copied sprites.
-    for k, v in pairs(that) do
+    for k, v in pairs(self) do
         --Copy that to this
         if k == "image" then
             if not args.noBatch then
@@ -278,7 +273,7 @@ end
 function sprite.drawGroup(group)
     local spriteGroup = sprite.groups[group]
     assert(spriteGroup, ("No group with name %s found."):format(pretty.write(group)))
-    for i = #spriteGroup.keys, 1, -1 do
+    for i = 1, #spriteGroup.keys do
         local key = spriteGroup.keys[i]
         if sprite.sprites[key] and sprite.sprites[key].visible then
             sprite.sprites[key]:draw()
