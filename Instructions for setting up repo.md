@@ -1,4 +1,4 @@
-# Instructions for setting up sceneSEditor Repo:
+# Instructions for setting up sceneEditor Repo:
 
 
 ## Before setting up:
