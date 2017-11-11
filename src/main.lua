@@ -26,6 +26,6 @@ function love.update(dt)
 end
 
 function love.draw()
-    sprite.drawAll()
+    sprite.drawGroup "default"
 end
 
