@@ -24,7 +24,7 @@ handSpriteOutline.shader:send("color", {241/255, 66/255, 244/255})
 
 function love.update(dt)
 	handSpriteOutline.shader:send("stepSize", {math.random(5,20)/handSpriteOutline.image:getWidth(), math.random(5,20)/handSpriteOutline.image:getHeight()})
-	handSpriteOutline.shader:send("color", {math.random(0,255)/255, math.random(0,255)/255, math.random(0,255)/255})
+    handSpriteOutline.shader:send("color", { math.sin((love.timer.getTime()) + 1) / 2, math.sin((love.timer.getTime() + 127) + 1) / 2, math.sin((love.timer.getTime() - 127) + 1) / 2 })
 end
 
 function love.draw()
