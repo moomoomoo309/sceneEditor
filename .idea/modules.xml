@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/spriteEditor.iml" filepath="$PROJECT_DIR$/spriteEditor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sceneEditor.iml" filepath="$PROJECT_DIR$/sceneEditor.iml" />
     </modules>
   </component>
 </project>

@@ -80,7 +80,8 @@ end
 --- x, y, and rotation are additive (self value + parent value),<br>
 --- w and h are multiplicative (self value * parent value),<br>
 --- flipHorizontal and flipVertical are XOR'd (self value ~= parent value),<br>
---- ox and oy are multiplied by the spriteOverlay's width/height after multiplication (self value * w/h).
+--- if ox / oy is a number, they are are multiplied by the spriteOverlay's width/height after multiplication (self value * w/h/scale).
+--- if ox / oy is a function, it is treated the same as in sprite.
 --- @return nil
 function spriteOverlay:draw()
     local x, y, w, h, rotation, flipHorizontal, flipVertical, ox, oy
@@ -93,8 +94,10 @@ function spriteOverlay:draw()
     rotation = self.rotation + parent.rotation
     flipHorizontal = self.flipHorizontal ~= parent.flipHorizontal
     flipVertical = self.flipVertical ~= parent.flipVertical
-    ox = self.ox * w / self.sx
-    oy = self.oy * h / self.sy
+    assert(type(self.ox) == "number" or type(self.ox) == "function", ("Number or function expected, got %s."):format(type(self.ox)))
+    assert(type(self.oy) == "number" or type(self.oy) == "function", ("Number or function expected, got %s."):format(type(self.oy)))
+    ox = type(self.ox) == "number" and self.ox * w / self.sx or self:ox()
+    oy = type(self.oy) == "number" and self.oy * h / self.sy or self:oy()
 
     --_draw is inherited from sprite.
     return self:_draw(x, y, w, h, rotation, flipHorizontal, flipVertical, ox, oy)

@@ -110,8 +110,6 @@ function animation:copy()
         frameCount = 1,
         sprite = self.sprite,
         animation = animation,
-        start = self.start,
-        stop = self.stop,
         colors = self.colors,
         paused = true,
         currentColor = false
@@ -136,6 +134,8 @@ function animation:getIndex(currentTime)
     end
     dt = dt % self.duration --Make sure it doesn't have to loop over
 
+    --This could be optimized more, so it doesn't start from the beginning each time, but
+    --because the number of frames will often be small, the speed loss shouldn't be too bad.
     for i = 1, #self.frames do
         local nextFrame = type(self.frameDurations) == "table" and self.frameDurations[i] or self.frameDurations
         if dt < nextFrame then
@@ -152,7 +152,8 @@ function animation:getColor(currentTime, index)
     if t == "number" then
         return { self.colors, self.colors, self.colors, 255 }
     elseif t == "table" then
-        if (#self.colors == 3 or #self.colors == 4) and type(self.colors[1]) == "number" then
+        local colorsLen = #self.colors
+        if (#colorsLen == 3 or #colorsLen == 4) and type(self.colors[1]) == "number" then
             return self.colors
         end
         return self.colors[index or self:getIndex(currentTime or love.timer.getTime())]

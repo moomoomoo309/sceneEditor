@@ -453,6 +453,13 @@ function sprite:rightOx()
     return self.flipHorizontal and 0 or -self.w / self.sx
 end
 
+--- Returns what you would set ox to in order to rotate the sprite about the given x coordinate.
+--- @treturn number What you would set ox to in order to rotate the sprite about the given x coordinate.
+function sprite:pointOx(x)
+    assert(type(self) == "table" and self:extends "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
+    return self.flipHorizontal and -self.w / self.sx - x or self.x - x
+end
+
 --- Returns what you would set oy to in order to rotate the sprite about its top.
 --- @treturn number What you would set oy to in order to rotate the sprite about its top.
 function sprite:topOy()
@@ -472,6 +479,13 @@ end
 function sprite:bottomOy()
     assert(type(self) == "table" and self:extends "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
     return self.flipVertical and 0 or -self.h / self.sy
+end
+
+--- Returns what you would set oy to in order to rotate the sprite about the given y coordinate.
+--- @treturn number What you would set oy to in order to rotate the sprite about the given y coordinate.
+function sprite:pointOy(y)
+    assert(type(self) == "table" and self:extends "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
+    return self.flipHorizontal and -self.h / self.sy - y or self.y - y
 end
 
 
