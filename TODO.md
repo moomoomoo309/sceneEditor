@@ -4,7 +4,7 @@
 - Write the code which lays out the GUI that way
 
 ### Sprite Drawing
-- Write code which draws outline around sprite
+- Write code which draws outline around sprite - IN PROGRESS
 
 ### Get sprites?
 - Probably will just use the Familiar Faces sprites to test
