@@ -1,7 +1,7 @@
 --- A module containing functions converting a color from one format to another.
 --- @module color
 
---- Converts HSV to RGV
+--- Converts HSV to RGB
 --- @tparam number h The hue of the color.
 --- @tparam number s The saturation of the color.
 --- @tparam number v The value of the color.
@@ -30,4 +30,27 @@ local function hsv(h, s, v)
     return (r + m) * 255, (g + m) * 255, (b + m) * 255
 end
 
-return { hsv = hsv }
+
+local function rgb(h, s, v)
+    s, v = s / 255, v / 255
+    h = (h * 6) % 6
+    local i = math.floor(h)
+    local p = 255 * v
+    local q = p * (1 - s)
+
+    if i == 0 then
+        return p, q + p * s * (h - i), q
+    elseif i == 1 then
+        return p * (1 - s * (h - i)), p, q
+    elseif i == 2 then
+        return q, p, q + p * s * (h - i)
+    elseif i == 3 then
+        return q, p * (1 - s * (h - i)), p
+    elseif i == 4 then
+        return q + p * s * (h - i), q, p
+    elseif i == 5 then
+        return p, q, p * (1 - s * (h - i))
+    end
+end
+
+return { hsv = hsv, rgb = rgb }
