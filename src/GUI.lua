@@ -30,11 +30,11 @@ buttons = gooi.newPanel {
     layout = "grid 5x1"
 }
 
-fileButton = gooi.newButton {
+fileButton = gooi.newButton({
     x = 2.5,
     y = 0,
     text = "File"
-}
+})
 
 
 editButton = gooi.newButton {
