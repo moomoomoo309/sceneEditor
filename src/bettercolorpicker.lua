@@ -79,7 +79,7 @@ function colorpicker:draw()
     drawHueCursor(self.x, self.y, self.w, self.h, self.hue)
 end
 
-function colorpicker.onPress(x, y)
+function colorpicker.mousepressed(x, y)
     for _, picker in pairs(colorpickers) do
         if picker and picker.onMouse then
             picker.hasFocus, picker.focusIsSquare = picker:isInside(x, y)
@@ -88,7 +88,7 @@ function colorpicker.onPress(x, y)
     end
 end
 
-function colorpicker.onMove(x, y)
+function colorpicker.mousemoved(x, y)
     for _, picker in pairs(colorpickers) do
         if picker and picker.onMouse then
             if picker.hasFocus then
@@ -98,7 +98,7 @@ function colorpicker.onMove(x, y)
     end
 end
 
-function colorpicker.onRelease()
+function colorpicker.mousereleased()
     for _, picker in pairs(colorpickers) do
         if picker and picker.onMouse then
             if picker.hasFocus then

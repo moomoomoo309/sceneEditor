@@ -25,20 +25,20 @@ function love.draw()
 end
 
 function love.mousepressed(x, y, button)
-    colorpicker.onPress(x, y)
-    scrollview.mousePressed(x, y, button)
+    colorpicker.mousepressed(x, y)
+    scrollview.mousepressed(x, y, button)
     gooi.pressed(button, x, y)
 end
 
 function love.mousereleased(x, y, button)
-    colorpicker.onRelease(x, y)
-    scrollview.mouseReleased(x, y, button)
+    colorpicker.mousereleased(x, y)
+    scrollview.mousereleased(x, y, button)
     gooi.released(button, x, y)
 end
 
 function love.mousemoved(x, y, dx, dy)
-    colorpicker.onMove(x, y)
-    scrollview.mouseMoved(dx, dy)
+    colorpicker.mousemoved(x, y)
+    scrollview.mousemoved(dx, dy)
     gooi.mousemoved(x, y)
 end
 
