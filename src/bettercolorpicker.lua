@@ -26,6 +26,7 @@ function colorpicker.new(_, args)
         function(self, _color)
             pretty.dump(_color)
             if _color[1] == _color[2] and _color[2] == _color[3] then
+                --Don't update hue for grayscale colors, they don't have a hue.s
                 _, self.saturation, self.value = color.rgb2hsv(unpack(_color))
             else
                 self.hue, self.saturation, self.value = color.rgb2hsv(unpack(_color))

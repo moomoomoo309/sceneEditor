@@ -23,16 +23,10 @@ function scrollview.new(args)
     return obj
 end
 
-function scrollview:draw()
+function scrollview:draw(drawFct)
     local x, y, w, h, scrollx, scrolly = self.x, self.y, self.w, self.h, self.scrollx, self.scrolly
     love.graphics.translate(x + w + scrollx, y + h + scrolly)
-    for _, v in pairs(self.children) do
-        if v.draw then
-            v:draw()
-        else
-            print(("Warning, object (%s) in scrollview has no draw!"):format(v.type))
-        end
-    end
+    drawFct()
     love.graphics.translate(-x - w - scrollx, -y - h - scrolly)
 end
 
