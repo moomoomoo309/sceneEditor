@@ -44,16 +44,13 @@ function love.draw()
 end
 
 function love.mousepressed(x, y)
-    pressed = true
-    colorpicker._onPress(x, y)
+    colorpicker.onPress(x, y)
 end
 
 function love.mousereleased(x, y)
-    pressed = false
+    colorpicker.onRelease(x, y)
 end
 
 function love.mousemoved(x, y)
-    if pressed then
-        colorpicker._onPress(x, y)
-    end
+    colorpicker.onMove(x, y)
 end
