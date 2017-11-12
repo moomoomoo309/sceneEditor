@@ -43,7 +43,7 @@ function types.type (obj)
 end
 
 --- is this number an integer?
--- @param x a number
+-- @param dx a number
 -- @raise error if x is not a number
 function types.is_integer (x)
     return math.ceil(x) == x

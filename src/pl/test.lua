@@ -56,8 +56,8 @@ test.complain = complain
 
 --- like assert, except takes two arguments that must be equal and can be tables.
 -- If they are plain tables, it will use tablex.deepcompare.
--- @param x any value
--- @param y a value equal to x
+-- @param dx any value
+-- @param dy a value equal to x
 -- @param eps an optional tolerance for numerical comparisons
 -- @param where extra level offset
 function test.asserteq (x, y, eps, where)

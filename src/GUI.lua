@@ -6,29 +6,15 @@ local addSprite, addSpriteOverlay, remove, detach, attach
 local largeFont = love.graphics.newFont(24)
 
 local menuBarColor = { 12, 183, 242 }
-local sideBarColor = { 12, 150, 196 }
-local propertiesColor = { 12, 165, 219 }
+local sideBarColor = { 12, 165, 219 }
+local propertiesColor = { 12, 150, 196 }
 local lightBackgroundColor = { 150, 150, 150 }
 local darkBackgroundColor = { 100, 100, 100 }
 local squareSize = 10
 
+local spriteAreaSize = .7
+
 local w, h = love.graphics.getDimensions()
-
-properties = gooi.newPanel {
-    x = w * .75,
-    y = h * .05,
-    w = w * .25,
-    h = h * .63, --.9*.7
-    layout = "grid 1x1"
-}
-
-buttons = gooi.newPanel {
-    x = w * .75,
-    y = h * .72,
-    w = w * .25,
-    h = h * .27, --.3*.9
-    layout = "grid 5x1"
-}
 
 fileButton = gooi.newButton({
     x = 2.5,
@@ -36,6 +22,21 @@ fileButton = gooi.newButton({
     text = "File"
 })
 
+properties = gooi.newPanel {
+    x = w * (spriteAreaSize + .005),
+    y = fileButton.h,
+    w = w * (1 - spriteAreaSize - .01),
+    h = h * .655, --.9*.7
+    layout = "grid 1x1"
+}
+
+buttons = gooi.newPanel {
+    x = properties.x,
+    y = h * .72,
+    w = properties.w,
+    h = h * .27, --.3*.9
+    layout = "grid 5x1"
+}
 
 editButton = gooi.newButton {
     x = fileButton.x + fileButton.w + 10,
@@ -94,12 +95,12 @@ local function drawBackground()
         end
     end
     love.graphics.setScissor()
-    love.graphics.setColor(unpack(propertiesColor))
-    love.graphics.rectangle("fill", w * .75, 0, w * .25, h)
+    love.graphics.setColor(unpack(sideBarColor))
+    love.graphics.rectangle("fill", w * spriteAreaSize, 0, w * (1 - spriteAreaSize), h)
     love.graphics.setColor(unpack(menuBarColor))
     love.graphics.rectangle("fill", 0, 0, w, fileButton.h)
-    love.graphics.setColor(unpack(sideBarColor))
-    love.graphics.rectangle("fill", w * .755, fileButton.h + h * .0075, w * .2395, h * .65)
+    love.graphics.setColor(unpack(propertiesColor))
+    love.graphics.rectangle("fill", properties.x, fileButton.h + h * .0075, properties.w, properties.h)
     love.graphics.setColor(unpack(oldColor))
 end
 

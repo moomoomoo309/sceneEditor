@@ -114,7 +114,7 @@ end
 --- Insert an item at a given position. i is the index of the
 -- element before which to insert.
 -- @int i index of element before whichh to insert
--- @param x A data item
+-- @param dx A data item
 -- @return the list
 function List:insert(i, x)
     assert_arg(1, i, 'number')
@@ -123,7 +123,7 @@ function List:insert(i, x)
 end
 
 --- Insert an item at the begining of the list.
--- @param x a data item
+-- @param dx a data item
 -- @return the list
 function List:put (x)
     return self:insert(1, x)
@@ -143,7 +143,7 @@ end
 -- (This is called 'remove' in Python; renamed to avoid confusion
 -- with table.remove)
 -- Return nil if there is no such item.
--- @param x A data value
+-- @param dx A data value
 -- @return the list
 function List:remove_value(x)
     for i = 1, #self do
@@ -180,14 +180,14 @@ local tfind = tablex.find
 List.index = tfind
 
 --- does this list contain the value?.
--- @param x A data value
+-- @param dx A data value
 -- @return true or false
 function List:contains(x)
     return tfind(self, x) and true or false
 end
 
 --- Return the number of times value appears in the list.
--- @param x A data value
+-- @param dx A data value
 -- @return number of times x appears
 function List:count(x)
     local cnt = 0
