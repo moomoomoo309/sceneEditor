@@ -1,6 +1,5 @@
 local object = require "object"
 local color = require "color"
-local pretty = require "pl.pretty"
 
 local colorpicker = { type = "colorpicker" }
 local colorpickers = setmetatable({}, { __mode = "v" })
@@ -125,7 +124,7 @@ function colorpicker:onMouse(x, y)
     if self.hasFocus then
         if isSquare and self.focusIsSquare then
             self.saturation, self.value = (x - self.x) / (self.w * .85) * 255, (y - self.y) / self.h * 255
-        elseif not isSquare and not self.focusIsSquare then
+        elseif not self.focusIsSquare then
             self.hue = math.max(math.min(self.h, (y - self.y)) / self.h * 360 - .1, 0)
         end
     elseif isInside then
