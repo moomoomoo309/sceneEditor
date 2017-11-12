@@ -9,19 +9,45 @@ local picker
 io.stdout:setvbuf "no"
 local GUI = require "GUI"
 local shiftPressed = false
+local ctrlPressed = false
+local scrollView
+scrollVelocityX, scrollVelocityY = 0, 0
+local scrollSpeed = 20
+
+
 
 function love.load()
     love.window.setTitle "Scene Editor"
+    handSprite = sprite {
+        w = 2000,
+        h = 700,
+        imagePath = "assets/Sink.png",
+    }
+    scrollView = scrollview {
+        x = 0,
+        y = fileButton.h,
+        scissorW = love.graphics.getWidth() * spriteAreaSize,
+        scissorH = love.graphics.getHeight() - fileButton.h,
+        w = handSprite.w,
+        h = handSprite.h
+    }
 end
 
 function love.update(dt)
+    scrollview.wheelmoved(scrollVelocityX * (math.abs(scrollVelocityX + 1) ^ .25 - 1) * dt,
+        scrollVelocityY * (math.abs(scrollVelocityY + 1) ^ .25 - 1) * dt, nil, nil, shiftPressed)
     gooi.update(dt)
+    local mult = math.min(dt * scrollSpeed / 2, 1)
+    scrollVelocityX = scrollVelocityX - scrollVelocityX * mult
+    scrollVelocityY = scrollVelocityY - scrollVelocityY * mult
 end
 
 function love.draw()
     GUI.drawBackground()
     gooi.draw()
-    --    sprite.drawGroup "default"
+    scrollView:draw(function()
+        sprite.drawGroup "default"
+    end)
 end
 
 function love.mousepressed(x, y, button)
@@ -43,20 +69,29 @@ function love.mousemoved(x, y, dx, dy)
 end
 
 function love.keypressed(key)
-    if key == "shift" then
+    if key:sub(2) == "shift" then
         shiftPressed = true
     end
     if key == "escape" then
         love.event.quit()
     end
+    if key:sub(2) == "ctrl" then
+        ctrlPressed = true
+    end
 end
 
 function love.keyreleased(key)
-    if key == "shift" then
+    if key:sub(2) == "shift" then
         shiftPressed = false
+    end
+    if key:sub(2) == "ctrl" then
+        ctrlPressed = false
     end
 end
 
 function love.wheelmoved(x, y)
-    scrollview.wheelmoved(x, y, shiftPressed)
+    scrollVelocityX, scrollVelocityY = scrollVelocityX + x * scrollSpeed, scrollVelocityY + y * scrollSpeed
+    if ctrlPressed then
+        scrollview.wheelmoved(nil, nil, x, y, shiftPressed, ctrlPressed)
+    end
 end

@@ -1,7 +1,7 @@
 require "gooi"
 
 local properties, buttons
-local fileButton, editButton, helpButton
+local editButton, helpButton
 local addSprite, addSpriteOverlay, remove, detach, attach
 local largeFont = love.graphics.newFont(24)
 
@@ -12,7 +12,7 @@ local lightBackgroundColor = { 150, 150, 150 }
 local darkBackgroundColor = { 100, 100, 100 }
 local squareSize = 10
 
-local spriteAreaSize = .7
+spriteAreaSize = .7
 
 local w, h = love.graphics.getDimensions()
 
