@@ -14,13 +14,11 @@ local scrollView
 scrollVelocityX, scrollVelocityY = 0, 0
 local scrollSpeed = 20
 
-
-
 function love.load()
     love.window.setTitle "Scene Editor"
     handSprite = sprite {
-        w = 2000,
-        h = 700,
+        w = 2460,
+        h = 2400,
         imagePath = "assets/Sink.png",
     }
     scrollView = scrollview {
@@ -30,6 +28,12 @@ function love.load()
         scissorH = love.graphics.getHeight() - fileButton.h,
         w = handSprite.w,
         h = handSprite.h
+    }
+    picker = colorpicker {
+        x = 50,
+        y = 50,
+        w = 300,
+        h = 300
     }
 end
 
@@ -48,6 +52,7 @@ function love.draw()
     scrollView:draw(function()
         sprite.drawGroup "default"
     end)
+    picker:draw()
 end
 
 function love.mousepressed(x, y, button)
