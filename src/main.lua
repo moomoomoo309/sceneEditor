@@ -3,6 +3,7 @@ local sprite = require "sprite"
 local colorpicker = require "bettercolorpicker"
 local handSprite, handSpriteOutline
 local picker
+local pressed = false
 io.stdout:setvbuf "no"
 
 function love.load()
@@ -43,6 +44,16 @@ function love.draw()
 end
 
 function love.mousepressed(x, y)
+    pressed = true
     colorpicker._onPress(x, y)
 end
 
+function love.mousereleased(x, y)
+    pressed = false
+end
+
+function love.mousemoved(x, y)
+    if pressed then
+        colorpicker._onPress(x, y)
+    end
+end
