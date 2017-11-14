@@ -7,7 +7,7 @@
   - Add sprite rendering
 - After pseudo-dropdowns for menu bar:
   - Implement menu bar options
-- After scrollview testing: - Ready
+- After scrollview testing: - Done
   - Finish properties
     - After finishing properties:
       - Add widget properties file for classes in properties
