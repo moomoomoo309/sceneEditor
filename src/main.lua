@@ -33,7 +33,8 @@ function love.load()
         x = 50,
         y = 50,
         w = 300,
-        h = 300
+        h = 300,
+        visible = false
     }
 end
 
@@ -91,6 +92,9 @@ function love.keyreleased(key)
     end
     if key:sub(2) == "ctrl" then
         ctrlPressed = false
+    end
+    if key == "space" then
+        picker.visible = not picker.visible
     end
 end
 

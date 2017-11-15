@@ -12,7 +12,7 @@ local lightBackgroundColor = { 150, 150, 150 }
 local darkBackgroundColor = { 100, 100, 100 }
 local squareSize = 10
 
-spriteAreaSize = .7
+spriteAreaSize = .75
 
 local w, h = love.graphics.getDimensions()
 

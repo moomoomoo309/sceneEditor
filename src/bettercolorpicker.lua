@@ -17,7 +17,8 @@ function colorpicker.new(_, args)
         square = love.image.newImageData(args.w * .85 + 1 or 0, args.h + 1 or 0),
         hueBar = love.image.newImageData(args.w * .1 + 1 or 0, args.h + 1 or 0),
         hasFocus = false,
-        focusIsSquare = true
+        focusIsSquare = true,
+        visible = args.visible == nil and true or args.visible
     }
     obj:addCallback("hue", function(self, hue) self.color = color.rgb2hsv(hue, self.saturation, self.value) return true end)
     obj:addCallback("saturation", function(self, saturation) self.color = color.rgb2hsv(self.hue, saturation, self.value) return true end)
@@ -73,6 +74,9 @@ local function drawHueCursor(x, y, w, h, hue)
 end
 
 function colorpicker:draw()
+    if not self.visible then
+        return
+    end
     drawSquare(self.x, self.y, self.w, self.h, self.hue, self.square)
     drawHueBar(self.x, self.y, self.w, self.h, self.hueBar)
     drawSquareCursor(self.x, self.y, self.w, self.h, self.saturation, self.value)

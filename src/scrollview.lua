@@ -7,12 +7,9 @@ local scrollBarSize = .025
 local scrollTrackColor = { 175, 175, 175, 128 }
 local scrollThumbColor = { 125, 125, 125, 192 }
 local scrollThumbHoverColor = { 150, 150, 150, 192 }
-local zoomBase = 1.1
+local zoomBase = 1.05
 
 local function clamp(num, min, max)
-    if max <= min then
-        return min
-    end
     return math.max(min, math.min(max, num))
 end
 
@@ -70,10 +67,17 @@ function scrollview:getScrollTrackDimensions(orientation)
     end
 end
 
+function scrollview:getVertScrollBarX()
+    return self.x + self.scissorW * (1 - scrollBarSize)
+end
+
+function scrollview:getHorizScrollBarY()
+    return self.y + self.scissorH * (1 - scrollBarSize)
+end
+
 function scrollview:draw(drawFct)
     local x, y, scrollX, scrollY = self.x, self.y, self.scrollX, self.scrollY
-    local vertScrollBarX = self.x + self.scissorW * (1 - scrollBarSize)
-    local horizScrollBarY = self.y + self.scissorH * (1 - scrollBarSize)
+    local vertScrollBarX = self:getVertScrollBarX()
     --Draw Canvas
     love.graphics.translate(x - scrollX * self.w / vertScrollBarX * self.zoom, y - scrollY * self.h / self.scissorH * self.zoom)
     love.graphics.scale(self.zoom)
@@ -111,7 +115,7 @@ function scrollview.wheelmoved(x, y, rawX, rawY, shiftPressed, ctrlPressed)
 end
 
 function scrollview:mousewheel(x, y, rawX, rawY, shiftPressed, ctrlPressed)
-    local vertScrollBarX = self.x + self.scissorW * (1 - scrollBarSize)
+    local vertScrollBarX = self:getVertScrollBarX()
     if ctrlPressed then
         self.zoomPower = self.zoomPower + rawY
         self.zoom = clamp(zoomBase ^ self.zoomPower, .1, 32)
@@ -148,8 +152,7 @@ function scrollview.mousepressed(x, y, button)
 end
 
 function scrollview:mousePressed(x, y)
-    local vertScrollBarX = self.x + self.scissorW * (1 - scrollBarSize)
-    local horizScrollBarY = self.y + self.scissorH * (1 - scrollBarSize)
+    local vertScrollBarX = self:getVertScrollBarX()
     local maxScrollX = math.max(0, vertScrollBarX - math.min(self.scissorW ^ 2 / self.w, self.scissorW - self.x + vertScrollBarX) / self.zoom)
     local maxScrollY = math.max(0, self.scissorH - math.min(self.scissorH, self.scissorH ^ 2 / self.h) / self.zoom)
     local _x, _y, _w, _h = self:getScrollTrackDimensions "v"
@@ -181,7 +184,7 @@ function scrollview.mousemoved(dx, dy)
 end
 
 function scrollview:mouseMoved(dx, dy)
-    local vertScrollBarX = self.x + self.scissorW * (1 - scrollBarSize)
+    local vertScrollBarX = self:getVertScrollBarX()
     local maxScrollX = math.max(0, vertScrollBarX - math.min(self.scissorW ^ 2 / self.w, self.scissorW - self.x + vertScrollBarX) / self.zoom)
     local maxScrollY = math.max(0, self.scissorH - math.min(self.scissorH, self.scissorH ^ 2 / self.h) / self.zoom)
     if self.hasFocus == "h" then
