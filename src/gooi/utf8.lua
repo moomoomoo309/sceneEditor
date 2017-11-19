@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -- returns the number of bytes used by the UTF-8 character at byte i in s
 -- also doubles as a UTF-8 character validator
-local function utf8charbytes(s, i)
+local function utf8charbytes (s, i)
     -- argument defaults
     i = i or 1
 
@@ -157,7 +157,7 @@ local function utf8charbytes(s, i)
 end
 
 -- returns the number of characters in a UTF-8 string
-local function utf8len(s)
+local function utf8len (s)
     -- argument checking
     if type(s) ~= "string" then
         error("bad argument #1 to 'utf8len' (string expected, got " .. type(s) .. ")")
@@ -177,7 +177,7 @@ end
 
 -- functions identically to string.sub except that i and j are UTF-8 characters
 -- instead of bytes
-local function utf8sub(s, i, j)
+local function utf8sub (s, i, j)
     -- argument defaults
     j = j or -1
 
@@ -213,15 +213,19 @@ local function utf8sub(s, i, j)
         end
     end
 
-    if startChar > len then startByte = bytes + 1 end
-    if endChar < 1 then endByte = 0 end
+    if startChar > len then
+        startByte = bytes + 1
+    end
+    if endChar < 1 then
+        endByte = 0
+    end
 
     return s:sub(startByte, endByte)
 end
 
 
 -- replace UTF-8 characters based on a mapping table
-local function utf8replace(s, mapping)
+local function utf8replace (s, mapping)
     -- argument checking
     if type(s) ~= "string" then
         error("bad argument #1 to 'utf8replace' (string expected, got " .. type(s) .. ")")
@@ -249,17 +253,17 @@ end
 
 
 -- identical to string.upper except it knows about unicode simple case conversions
-local function utf8upper(s)
+local function utf8upper (s)
     return utf8replace(s, utf8_lc_uc)
 end
 
 -- identical to string.lower except it knows about unicode simple case conversions
-local function utf8lower(s)
+local function utf8lower (s)
     return utf8replace(s, utf8_uc_lc)
 end
 
 -- identical to string.reverse except that it supports UTF-8
-local function utf8reverse(s)
+local function utf8reverse (s)
     -- argument checking
     if type(s) ~= "string" then
         error("bad argument #1 to 'utf8reverse' (string expected, got " .. type(s) .. ")")
@@ -290,7 +294,9 @@ end
 -- http://en.wikipedia.org/wiki/Utf8
 -- http://developer.coronalabs.com/code/utf-8-conversion-utility
 local function utf8char(unicode)
-    if unicode <= 0x7F then return string.char(unicode) end
+    if unicode <= 0x7F then
+        return string.char(unicode)
+    end
 
     if (unicode <= 0x7FF) then
         local Byte0 = 0xC0 + math.floor(unicode / 0x40);
@@ -330,7 +336,9 @@ utf8unicode = function(str, i, j, byte_pos)
     i = i or 1
     j = j or i
 
-    if i > j then return end
+    if i > j then
+        return
+    end
 
     local char, bytes
 
@@ -344,7 +352,9 @@ utf8unicode = function(str, i, j, byte_pos)
 
     local unicode
 
-    if bytes == 1 then unicode = string.byte(char) end
+    if bytes == 1 then
+        unicode = string.byte(char)
+    end
     if bytes == 2 then
         local byte0, byte1 = string.byte(char, 1, 2)
         local code0, code1 = byte0 - 0xC0, byte1 - 0x80
@@ -373,7 +383,9 @@ local function utf8gensub(str, sub_len)
         local char_count = 0
         local start = byte_pos
         repeat
-            if byte_pos > len then return end
+            if byte_pos > len then
+                return
+            end
             char_count = char_count + 1
             local bytes = utf8charbytes(str, byte_pos)
             byte_pos = byte_pos + bytes

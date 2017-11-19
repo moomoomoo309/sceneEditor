@@ -57,10 +57,10 @@ function love.draw()
     picker:draw()
 end
 
-function love.mousepressed(x, y, button)
+function love.mousepressed(x, y, button, isTouch)
     colorpicker.mousepressed(x, y)
     scrollview.mousepressed(x, y, button)
-    gooi.pressed(button, x, y)
+    gooi.pressed(isTouch, x, y)
 end
 
 function love.mousereleased(x, y, button)
@@ -72,10 +72,9 @@ end
 function love.mousemoved(x, y, dx, dy)
     colorpicker.mousemoved(x, y)
     scrollview.mousemoved(dx, dy)
-    gooi.mousemoved(x, y)
 end
 
-function love.keypressed(key)
+function love.keypressed(key, scancode, isrepeat)
     if key:sub(2) == "shift" then
         shiftPressed = true
     end
@@ -85,6 +84,7 @@ function love.keypressed(key)
     if key:sub(2) == "ctrl" then
         ctrlPressed = true
     end
+    gooi.keypressed(key, scancode, isrepeat)
 end
 
 function love.keyreleased(key)
@@ -97,6 +97,7 @@ function love.keyreleased(key)
     if key == "space" then
         picker.visible = not picker.visible
     end
+    gooi.keyreleased()
 end
 
 function love.wheelmoved(x, y)
@@ -104,4 +105,8 @@ function love.wheelmoved(x, y)
     if ctrlPressed then
         scrollview.wheelmoved(nil, nil, x, y, shiftPressed, ctrlPressed)
     end
+end
+
+function love.textinput(text)
+    gooi.textinput(text)
 end

@@ -4,7 +4,7 @@ local properties = {}
 
 --- "Walks" through a table, I.E. Iterates through an N-deep table as if it were a flat table. Returns key(s) and value.
 --- Use it like pairs() or ipairs() in a for loop. The key(s) will always be in a table.
-function walk(tbl)
+local function walk(tbl)
     local indices = {}
     local indicesLen = 1
     local function appendKey(indices, indicesLen, key)

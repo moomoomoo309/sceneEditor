@@ -1,42 +1,28 @@
---[[
-
-Copyright (c) 2015-2017 Gustavo Alberto Lara Gómez
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-]]
-
 component = {}
 component.__index = component
+component.colors = {
+    blue = { 2, 117, 216, 255 },
+    green = { 92, 184, 92, 255 },
+    cyan = { 91, 192, 222, 255 },
+    orange = { 240, 173, 78, 255 },
+    red = { 217, 83, 79, 255 },
+    black = { 0, 0, 0, 255 },
+    white = { 255, 255, 255, 255 },
+    clearGray = { 247, 247, 247, 255 },
+    darkGray = { 41, 43, 44, 255 },
+    darkGrayAlpha = { 41, 43, 44, 150 },
+}
 component.style = {
-    bgColor = { 12, 183, 242, 170 }, -- LOVE blue
-    fgColor = { 255, 255, 255, 255 }, -- Foreground color
+    bgColor = component.colors.blue,
+    fgColor = component.colors.white, -- Foreground color
     tooltipFont = love.graphics.newFont(love.window.toPixels(11)), -- tooltips are smaller than the main font
-    radius = 3, -- radius for the outer shapes of components
-    innerRadius = 3, -- For the inner ones
-    showBorder = false, -- border for components
-    borderColor = { 12, 183, 242, 255 },
-    borderWidth = 2, -- in pixels
-    borderStyle = "rough", -- or "smooth"
+    radius = love.window.toPixels(3), -- radius for the outer shapes of components
+    innerRadius = love.window.toPixels(3), -- For the inner ones
+    showBorder = true, -- border for components
+    borderColor = component.colors.blue,
+    borderWidth = love.window.toPixels(2), -- in pixels
+    borderStyle = "smooth", -- or "smooth"
     font = love.graphics.newFont(love.window.toPixels(13)),
-    mode3d = false, -- gives that subtle gradient on the given color
-    glass = false -- for a glass effect (horizon reflection)
 }
 
 local currId = -1
@@ -46,7 +32,7 @@ function genId()
 end
 
 ----------------------------------------------------------------------------
--------------------------- Component creator  ----------------------------
+--------------------------   Component creator  ----------------------------
 ----------------------------------------------------------------------------
 function component.new(t, x, y, w, h, group)
     local c = {}
@@ -60,7 +46,6 @@ function component.new(t, x, y, w, h, group)
     c.visible = true
     c.hasFocus = false
     c.pressed = false
-    c.hovered = false
     c.group = group or "default"
     c.tooltip = nil
     c.smallerSide = c.h
@@ -73,35 +58,21 @@ function component.new(t, x, y, w, h, group)
         self.tooltip = text
         return self
     end
-
-    c.touch = nil -- Stores the touch which is on this component.
-    c.opaque = true -- If false, the component base will never be drawn.
-    c.events = { p = nil, r = nil, m = nil, h = nil, u = nil }
+    c.touch = nil-- Stores the touch which is on this component.
+    c.opaque = true-- If false, the component base will never be drawn.
+    c.events = { p = nil, r = nil, m = nil }
     function c:onPress(f)
         c.events.p = f
         return self
     end
-
     function c:onRelease(f)
         c.events.r = f
         return self
     end
-
     function c:onMoved(f)
         c.events.m = f
         return self
     end
-
-    function c:onHover(f)
-        c.events.h = f
-        return self
-    end
-
-    function c:onUnhover(f)
-        c.events.u = f
-        return self
-    end
-
     function c:bg(color)
         if not color then
             return self.style.bgColor
@@ -114,7 +85,6 @@ function component.new(t, x, y, w, h, group)
         self:make3d()
         return self
     end
-
     function c:fg(color)
         if not color then
             return self.style.fgColor
@@ -125,7 +95,6 @@ function component.new(t, x, y, w, h, group)
         end
         return self
     end
-
     function c:setRadius(r, ri)
         if not r then
             return self.style.radius, self.style.innerRadius;
@@ -138,7 +107,6 @@ function component.new(t, x, y, w, h, group)
 
         return self
     end
-
     function c:border(w, color, style)
         if not w then
             return self.style.borderWidth, self.style.borderColor;
@@ -154,14 +122,12 @@ function component.new(t, x, y, w, h, group)
         self.style.showBorder = true
         return self
     end
-
     function c:noGlass()
-        self.style.glass = false
+        self.glass = false
         return self
     end
-
     function c:no3D()
-        self.style.mode3d = false
+        self.mode3d = false
         return self
     end
 
@@ -199,6 +165,54 @@ function component.new(t, x, y, w, h, group)
         self.imgGlass:setFilter("linear", "linear")
     end
 
+    function c:makeShadow()
+        self.heightShadow = 6
+        self.imgDataShadow = love.image.newImageData(1, self.heightShadow)
+        self.imgDataShadow:setPixel(0, 0, 0, 0, 0, 80)
+        self.imgDataShadow:setPixel(0, 1, 0, 0, 0, 30)
+        self.imgDataShadow:setPixel(0, 2, 0, 0, 0, 5)
+
+        self.imgShadow = love.graphics.newImage(self.imgDataShadow)
+        self.imgShadow:setFilter("linear", "linear")
+    end
+    c:makeShadow()
+
+    function c:primary()
+        self:bg(component.colors.blue)
+        return self
+    end
+    function c:success()
+        self:bg(component.colors.green)
+        return self
+    end
+    function c:info()
+        self:bg(component.colors.cyan)
+        return self
+    end
+    function c:warning()
+        self:bg(component.colors.orange)
+        return self
+    end
+    function c:danger()
+        self:bg(component.colors.red)
+        return self
+    end
+    function c:secondary()
+        self:bg(component.colors.clearGray)
+        self:fg(component.colors.darkGray)
+        return self
+    end
+    function c:inverted()
+        self:bg(component.colors.darkGray)
+        self:fg(component.colors.clearGray)
+        return self
+    end
+
+    function c:opacity(o)
+        self.style.bgColor[4] = o * 255
+        return self
+    end
+
     c:make3d()
 
     return setmetatable(c, component)
@@ -206,14 +220,13 @@ end
 
 
 ----------------------------------------------------------------------------
--------------------------- Draw the component  ---------------------------
+--------------------------   Draw the component  ---------------------------
 ----------------------------------------------------------------------------
 function component:draw()
     -- Every component has the same base:
-    love.graphics.setLineWidth(self.h / 25)
     local style = self.style
     if self.opaque and self.visible then
-        local focusColorChange = 20
+        local focusColorChange = 15
         local fs = -1
         if not self.enabled then
             focusColorChange = 0
@@ -224,7 +237,7 @@ function component:draw()
             if not self.pressed then
                 fs = 1
             end
-            newColor = changeBrig(newColor, 20 * fs)
+            newColor = changeBrig(newColor, focusColorChange * fs)
             if self.tooltip then
                 self.timerTooltip = self.timerTooltip + love.timer.getDelta()
                 if self.timerTooltip >= 0.5 then
@@ -244,18 +257,16 @@ function component:draw()
 
         local radiusCorner = style.radius
 
-        function mask()
+        love.graphics.stencil(function()
             love.graphics.rectangle("fill",
-                math.floor(self.x),
-                math.floor(self.y),
-                math.floor(self.w),
-                math.floor(self.h),
-                radiusCorner,
-                radiusCorner,
-                50)
-        end
-
-        love.graphics.stencil(mask, "replace", 1)
+            math.floor(self.x),
+            math.floor(self.y),
+            math.floor(self.w),
+            math.floor(self.h),
+            self.style.radius,
+            self.style.radius,
+            50)
+        end, "replace", 1)
         love.graphics.setStencilTest("greater", 0)
         local scaleY = 1
         local img = self.img3D
@@ -268,70 +279,101 @@ function component:draw()
                 end
             end
         end
+
         -- Correct light effect when 2 modes are set:
-        if style.mode3d and style.glass then
+        if self.mode3d and self.glass then
             scaleY = -1
         end
 
-        if style.mode3d then
+        if self.mode3d then
             love.graphics.setColor(255, 255, 255, style.bgColor[4] or 255)
             if not self.enabled then
                 love.graphics.setColor(0, 0, 0, style.bgColor[4] or 255)
             end
             love.graphics.draw(img,
-                self.x + self.w / 2,
-                self.y + self.h / 2,
-                0,
-                math.floor(self.w),
-                self.h / 2 * scaleY,
-                img:getWidth() / 2,
-                img:getHeight() / 2)
+            self.x + self.w / 2,
+            self.y + self.h / 2,
+            0,
+            math.floor(self.w),
+            self.h / 2 * scaleY,
+            img:getWidth() / 2,
+            img:getHeight() / 2)
 
         else
             love.graphics.rectangle("fill",
-                math.floor(self.x),
-                math.floor(self.y),
-                math.floor(self.w),
-                math.floor(self.h),
-                radiusCorner,
-                radiusCorner,
-                50)
+            math.floor(self.x),
+            math.floor(self.y),
+            math.floor(self.w),
+            math.floor(self.h),
+            self.style.radius,
+            self.style.radius,
+            50)
         end
 
-        if style.glass then
+        if self.glass then
             love.graphics.setColor(255, 255, 255)
             love.graphics.draw(self.imgGlass,
-                self.x,
-                self.y,
-                0,
-                math.floor(self.w),
-                self.h / 4)
+            self.x,
+            self.y,
+            0,
+            math.floor(self.w),
+            self.h / 4)
+        end
+
+        if self.bgImage then
+            love.graphics.setColor(255, 255, 255)
+            love.graphics.draw(self.bgImage,
+            math.floor(self.x),
+            math.floor(self.y),
+            0,
+            self.w / self.bgImage:getWidth(),
+            self.h / self.bgImage:getHeight())
         end
         love.graphics.setStencilTest()
 
         -- Border:
-        love.graphics.setLineStyle(style.borderStyle)
         if style.showBorder then
-            love.graphics.setColor(style.borderColor)
+            love.graphics.setColor(newColor)
             if not self.enabled then
                 love.graphics.setColor(63, 63, 63)
             end
-            local prevLineW = love.graphics.getLineWidth()
-            love.graphics.setLineWidth(style.borderWidth)
             love.graphics.rectangle("line",
-                math.floor(self.x),
-                math.floor(self.y),
-                math.floor(self.w),
-                math.floor(self.h),
-                radiusCorner,
-                radiusCorner,
-                50)
-            love.graphics.setLineWidth(prevLineW)
+            math.floor(self.x),
+            math.floor(self.y),
+            math.floor(self.w),
+            math.floor(self.h),
+            self.style.radius,
+            self.style.radius,
+            50)
         end
-        love.graphics.setLineStyle("rough")
+    end
+end
 
-        -- Restore paint:
+function component:drawShadowPressed()
+    if self.pressed and self.type == "button" and self.shadow then
+        love.graphics.stencil(function()
+            love.graphics.rectangle("fill",
+            math.floor(self.x),
+            math.floor(self.y),
+            math.floor(self.w),
+            math.floor(self.h),
+            self.style.radius,
+            self.style.radius,
+            50)
+        end, "replace", 1)
+        love.graphics.setStencilTest("greater", 0)
+
         love.graphics.setColor(255, 255, 255)
+        love.graphics.draw(self.imgShadow,
+        self.x + self.w / 2,
+        self.y + self.h / 2,
+        0,
+        math.floor(self.w),
+        self.h / self.heightShadow,
+        self.imgShadow:getWidth() / 2,
+        self.imgShadow:getHeight() / 2
+        )
+        love.graphics.setStencilTest()
     end
 end
 
@@ -350,8 +392,8 @@ function component:setEnabled(b)
         for i = 1, #self.sons do
             local c = self.sons[i].ref
             c.enabled = b
-            c.style.glass = b
-            c.style.mode3d = b
+            c.glass = b
+            c.mode3d = b
         end
     end
 end
@@ -382,7 +424,7 @@ function component:overItAux(x, y)
     local ym = love.mouse.getY() / gooi.sy
 
     if self.touch then
-        xm, ym = self.touch.x, self.touch.y -- Already scaled.
+        xm, ym = self.touch.x, self.touch.y-- Already scaled.
     end
     -- Scale:
     if x and y then
@@ -397,13 +439,17 @@ function component:overItAux(x, y)
     local theH = self.h
 
     -- Check if one of the "two" rectangles is on the mouse/finger:
-    local b = not (xm < theX or
-            ym < theY + radiusCorner or
-            xm > theX + theW or
-            ym > theY + theH - radiusCorner) or not (xm < theX + radiusCorner or
-            ym < theY or
-            xm > theX + theW - radiusCorner or
-            ym > theY + theH)
+    local b = not (
+    xm < theX or
+    ym < theY + radiusCorner or
+    xm > theX + theW or
+    ym > theY + theH - radiusCorner
+    ) or not (
+    xm < theX + radiusCorner or
+    ym < theY or
+    xm > theX + theW - radiusCorner or
+    ym > theY + theH
+    )
 
     -- Check if mouse/finger is over one of the 4 "circles":
 
@@ -418,9 +464,9 @@ function component:overItAux(x, y)
     local hyp4 = math.sqrt(math.pow(xm - x2, 2) + math.pow(ym - y2, 2))
 
     return (hyp1 < radiusCorner or
-            hyp2 < radiusCorner or
-            hyp3 < radiusCorner or
-            hyp4 < radiusCorner or b), index, xm, ym
+    hyp2 < radiusCorner or
+    hyp3 < radiusCorner or
+    hyp4 < radiusCorner or b), index, xm, ym
 end
 
 function component:overIt(x, y)
@@ -462,6 +508,15 @@ function component:setBounds(x, y, w, h)
         self:rebuild()
     end
 
+    return self
+end
+
+function component:setBGImage(image)
+    if type(image) == "string" then
+        image = love.graphics.newImage(image)
+    end
+
+    self.bgImage = image
     return self
 end
 
