@@ -14,7 +14,8 @@ local scrollView
 scrollVelocityX, scrollVelocityY = 0, 0
 local scrollSpeed = 20
 
-function love.load()
+function love.load(arg)
+    if arg and arg[#arg] == "-debug" then require("mobdebug").start() require"mobdebug".off() end
     love.window.setTitle "Scene Editor"
     handSprite = sprite {
         w = 2460,
