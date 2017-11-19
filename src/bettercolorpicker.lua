@@ -41,28 +41,23 @@ function colorpicker.new(_, args)
         bLabel = nil
     }
     obj:addCallback("hue", function(self, hue)
-        self.color = { color.rgb2hsv(hue, self.saturation, self.value) }
+        self.color = { color.hsv2rgb(hue, self.saturation, self.value) }
         self:triggerCallback("color", self.color)
         self.hueSlider:setValue(hue / 360)
-        self.hueLabel.text = self.hueLabel:setText(hue)
+        self.hueLabel:setText(hue)
         self.squareImg = nil
-        return true
     end)
     obj:addCallback("saturation", function(self, saturation)
-        self.color = { color.rgb2hsv(self.hue, saturation, self.value) }
+        self.color = { color.hsv2rgb(self.hue, saturation, self.value) }
         self:triggerCallback("color", self.color)
         self.saturationSlider:setValue(saturation / 255)
-        self.saturationLabel.text = self.saturationLabel:setText(saturation)
-        return true
+        self.saturationLabel:setText(saturation)
     end)
     obj:addCallback("value", function(self, value)
-        assert(value >= 0 and value <= 255, ("Value %d outside of 0-255!"):format(value))
-        print(value)
-        self.color = { color.rgb2hsv(self.hue, self.saturation, value) }
+        self.color = { color.hsv2rgb(self.hue, self.saturation, value) }
         self:triggerCallback("color", self.color)
         self.valueSlider:setValue(value / 255)
-        self.valueLabel.text = self.valueLabel:setText(value)
-        return true
+        self.valueLabel:setText(value)
     end)
     obj:addCallback("color", function(self, _color)
         if _color[1] == _color[2] and _color[2] == _color[3] then
@@ -74,10 +69,9 @@ function colorpicker.new(_, args)
         self.rSlider:setValue(_color[1] / 255)
         self.gSlider:setValue(_color[2] / 255)
         self.bSlider:setValue(_color[3] / 255)
-        self.rLabel.text = self.rLabel:setText(_color[1])
-        self.gLabel.text = self.gLabel:setText(_color[2])
-        self.bLabel.text = self.bLabel:setText(_color[3])
-        return true
+        self.rLabel:setText(_color[1])
+        self.gLabel:setText(_color[2])
+        self.bLabel:setText(_color[3])
     end)
     obj:addCallback("w", function(self, w)
         self.hueBarImg = nil
@@ -180,7 +174,8 @@ function colorpicker.new(_, args)
         h = obj.w / 8,
         group = "colorpicker" .. obj.id
     }:setCallback(function(self)
-        obj.color[1] = self.value * 255 obj:triggerCallback("color", obj.color)
+        obj.color[1] = self.value * 255
+        obj:triggerCallback("color", obj.color)
     end)
     obj.gSlider = gooi.newSlider {
         value = obj.color[2] / 255,
@@ -190,7 +185,8 @@ function colorpicker.new(_, args)
         h = obj.w / 8,
         group = "colorpicker" .. obj.id
     }:setCallback(function(self)
-        obj.color[2] = self.value * 255 obj:triggerCallback("color", obj.color)
+        obj.color[2] = self.value * 255
+        obj:triggerCallback("color", obj.color)
     end)
     obj.bSlider = gooi.newSlider {
         value = obj.color[3] / 255,
@@ -200,9 +196,10 @@ function colorpicker.new(_, args)
         h = obj.w / 8,
         group = "colorpicker" .. obj.id
     }:setCallback(function(self)
-        obj.color[3] = self.value * 255 obj:triggerCallback("color", obj.color)
+        obj.color[3] = self.value * 255
+        obj:triggerCallback("color", obj.color)
     end)
-    for _, val in pairs { "hue", "saturation", "value", "color", "visible" } do
+    for _, val in pairs { "color", "visible" } do
         obj:triggerCallback(val, obj[val])
     end
     return obj
@@ -223,7 +220,6 @@ local function drawSquare(x, y, w, h, hue, square, squareImg)
 end
 
 local function drawHueBar(x, y, w, h, hueBar, hueBarImg)
-    local hueImg
     if not hueBarImg then
         for _x = x + w * .9, x + w * .99 - 1 do
             for _y = y, y + h - 1 do
@@ -231,10 +227,10 @@ local function drawHueBar(x, y, w, h, hueBar, hueBarImg)
                 hueBar:setPixel(_x - x - w * .9, _y - y, r, g, b, 255)
             end
         end
-        hueImg = love.graphics.newImage(hueBar)
+        hueBarImg = love.graphics.newImage(hueBar)
     end
-    love.graphics.draw(hueBarImg or hueImg, x + w * .9, y, 0, 1, 1)
-    return hueBarImg or hueImg
+    love.graphics.draw(hueBarImg, x + w * .9, y, 0, 1, 1)
+    return hueBarImg
 end
 
 local function drawSquareCursor(x, y, w, h, s, v)
@@ -327,10 +323,10 @@ function colorpicker:onMouse(x, y)
         self.focusIsSquare = isSquare
         if isSquare then
             s, v = (x - self.x) / (self.w * .85) * 255, (y - self.y) / self.h * 255
-            self.color = { color.hsv2rgb(h, s, v) }
+            self:triggerCallback("color", { color.hsv2rgb(h, s, v) })
         else
             h = math.max((y - self.y) / self.h * 360 - .1, 0)
-            self.color = { color.hsv2rgb(h, s, v) }
+            self:triggerCallback("color", { color.hsv2rgb(h, s, v) })
         end
     end
 end
