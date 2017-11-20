@@ -11,8 +11,6 @@ local GUI = require "GUI"
 local shiftPressed = false
 local ctrlPressed = false
 local scrollView
-scrollVelocityX, scrollVelocityY = 0, 0
-local scrollSpeed = 20
 
 function love.load(arg)
     if arg and arg[#arg] == "-ideadebug" then package.path=[[/home/nicholasdelello/.IntelliJIdea2017.3/config/plugins/Lua/mobdebug/?.lua;]]  ..  package.path arg[#arg] = "-debug" end
@@ -41,12 +39,8 @@ function love.load(arg)
 end
 
 function love.update(dt)
-    scrollview.wheelmoved(scrollVelocityX * (math.abs(scrollVelocityX + 1) ^ .25 - 1) * dt,
-        scrollVelocityY * (math.abs(scrollVelocityY + 1) ^ .25 - 1) * dt, nil, nil, shiftPressed)
+    scrollview.update(dt, shiftPressed, ctrlPressed)
     gooi.update(dt)
-    local mult = math.min(dt * scrollSpeed / 2, 1)
-    scrollVelocityX = scrollVelocityX - scrollVelocityX * mult
-    scrollVelocityY = scrollVelocityY - scrollVelocityY * mult
 end
 
 function love.draw()
@@ -102,10 +96,7 @@ function love.keyreleased(key)
 end
 
 function love.wheelmoved(x, y)
-    scrollVelocityX, scrollVelocityY = scrollVelocityX + x * scrollSpeed, scrollVelocityY + y * scrollSpeed
-    if ctrlPressed then
-        scrollview.wheelmoved(nil, nil, x, y, shiftPressed, ctrlPressed)
-    end
+    scrollview.wheelmoved(x, y, shiftPressed, ctrlPressed)
 end
 
 function love.textinput(text)

@@ -3,11 +3,11 @@ local scrollview
 
 scrollview = { scrollviews = setmetatable({}, { __mode = "v" }), type = "scrollview" }
 scrollview.class = scrollview
-local scrollBarSize = .025
 local scrollTrackColor = { 175, 175, 175, 128 }
 local scrollThumbColor = { 125, 125, 125, 192 }
 local scrollThumbHoverColor = { 150, 150, 150, 192 }
-local zoomBase = 1.05
+local lastShiftPressed = false
+local lastCtrlPressed = false
 
 local function clamp(num, min, max)
     return math.max(min, math.min(max, num))
@@ -27,14 +27,26 @@ function scrollview.new(_, args)
         children = args.children or {},
         hasFocus = false,
         zoom = args.zoom or 1,
-        zoomPower = math.log(args.zoom or 1) / math.log(zoomBase),
         viewPortW = (args.scissorW or 0) * (args.zoom or 1),
-        viewPortH = (args.scissorH or 0) * (args.zoom or 1)
+        viewPortH = (args.scissorH or 0) * (args.zoom or 1),
+        velocityX = 0,
+        velocityY = 0,
+        velocityZoom = 0,
+        scrollSpeed = args.scrollSpeed or 5,
+        scrollAccelerationPower = args.scrollAccelerationPower or .85,
+        scrollBarSize = args.scrollBarSize or .025,
+        zoomBase = args.zoomBase or 1.05,
+        zoomSpeed = args.zoomSpeed or .25,
+        zoomAccelerationPower = args.zoomAccelerationPower or .25,
+        lightBackgroundColor = args.lightBackgroundColor or { 150, 150, 150 },
+        darkBackgroundColor = args.darkBackgroundColor or { 100, 100, 100 },
+        squareSize = args.squareSize or 10,
     }
+    obj.zoomPower = math.log(obj.zoom) / math.log(obj.zoomBase)
     obj.class = scrollview
     obj:addCallback("zoom", function(self, zoom)
         self.viewPortW = self.scissorW * zoom
-        self.viewPortH = self.scissorH * zoom
+        self.viewportH = self.scissorH * zoom
     end)
     assert(type(obj.x) == "number", ("Number expected, got %s."):format(type(obj.x)))
     assert(type(obj.y) == "number", ("Number expected, got %s."):format(type(obj.y)))
@@ -48,8 +60,8 @@ function scrollview.new(_, args)
 end
 
 function scrollview:getScrollThumbDimensions(orientation)
-    local vertScrollBarX = self.x + self.scissorW * (1 - scrollBarSize)
-    local horizScrollBarY = self.y + self.scissorH * (1 - scrollBarSize)
+    local vertScrollBarX = self.x + self.scissorW * (1 - self.scrollBarSize)
+    local horizScrollBarY = self.y + self.scissorH * (1 - self.scrollBarSize)
     if orientation == "h" then
         return self.x + self.scrollX, horizScrollBarY, math.min(self.scissorW ^ 2 / self.w / self.zoom, vertScrollBarX), self.scissorH + self.y - horizScrollBarY
     elseif orientation == "v" then
@@ -58,8 +70,8 @@ function scrollview:getScrollThumbDimensions(orientation)
 end
 
 function scrollview:getScrollTrackDimensions(orientation)
-    local vertScrollBarX = self.x + self.scissorW * (1 - scrollBarSize)
-    local horizScrollBarY = self.y + self.scissorH * (1 - scrollBarSize)
+    local vertScrollBarX = self.x + self.scissorW * (1 - self.scrollBarSize)
+    local horizScrollBarY = self.y + self.scissorH * (1 - self.scrollBarSize)
     if orientation == "v" then
         return vertScrollBarX, self.y, self.scissorW + self.x - vertScrollBarX, self.scissorH
     elseif orientation == "h" then
@@ -68,26 +80,58 @@ function scrollview:getScrollTrackDimensions(orientation)
 end
 
 function scrollview:getVertScrollBarX()
-    return self.x + self.scissorW * (1 - scrollBarSize)
+    return self.x + self.scissorW * (1 - self.scrollBarSize)
 end
 
 function scrollview:getHorizScrollBarY()
-    return self.y + self.scissorH * (1 - scrollBarSize)
+    return self.y + self.scissorH * (1 - self.scrollBarSize)
+end
+
+function scrollview:drawCheckerboard()
+    local oldColor = { love.graphics.getColor() }
+    local start, lightGray = false, false
+    for x = self.x, self.x + self.scissorW, self.squareSize do
+        lightGray = start
+        start = not start
+        for y = self.y, self.y + self.scissorH, self.squareSize do
+            if lightGray then
+                love.graphics.setColor(unpack(self.lightBackgroundColor))
+            else
+                love.graphics.setColor(unpack(self.darkBackgroundColor))
+            end
+            love.graphics.rectangle("fill", x, y, self.squareSize, self.squareSize)
+            lightGray = not lightGray
+        end
+    end
+    love.graphics.setColor(unpack(oldColor))
 end
 
 function scrollview:draw(drawFct)
     local x, y, scrollX, scrollY = self.x, self.y, self.scrollX, self.scrollY
     local vertScrollBarX = self:getVertScrollBarX()
     --Draw Canvas
+    love.graphics.setScissor(self.x, self.y, self.scissorW, self.scissorH)
+    self:drawCheckerboard()
+    if self.scissorW > self.w * self.zoom then
+        love.graphics.translate((self.scissorW - self.w * self.zoom) / 2, 0)
+    end
+    if self.scissorH > self.h * self.zoom  then
+        love.graphics.translate(0, (self.scissorH - self.h * self.zoom) / 2)
+    end
     love.graphics.translate(x - scrollX * self.w / vertScrollBarX * self.zoom, y - scrollY * self.h / self.scissorH * self.zoom)
     love.graphics.scale(self.zoom)
-    love.graphics.setScissor(self.x, self.y, self.scissorW, self.scissorH)
     drawFct()
     love.graphics.setScissor()
     love.graphics.scale(1 / self.zoom)
     love.graphics.translate(-x + scrollX * self.w / vertScrollBarX * self.zoom, -y + scrollY * self.h / self.scissorH * self.zoom)
-    local oldColor = { love.graphics.getColor() }
+    if self.scissorW > self.w * self.zoom then
+        love.graphics.translate((-self.scissorW + self.w * self.zoom) / 2, 0)
+    end
+    if self.scissorH > self.h * self.zoom then
+        love.graphics.translate(0, (-self.scissorH + self.h * self.zoom) / 2)
+    end
     --Draw tracks
+    local oldColor = { love.graphics.getColor() }
     love.graphics.setColor(unpack(scrollTrackColor))
     if self.scissorW / self.zoom < self.w then
         love.graphics.rectangle("fill", self:getScrollTrackDimensions "h")
@@ -108,36 +152,36 @@ function scrollview:draw(drawFct)
     love.graphics.setColor(unpack(oldColor))
 end
 
-function scrollview.wheelmoved(x, y, rawX, rawY, shiftPressed, ctrlPressed)
-    for _, v in pairs(scrollview.scrollviews) do
-        v:mousewheel(x, y, rawX, rawY, shiftPressed, ctrlPressed)
+function scrollview:mousewheel(x, y, shiftPressed, ctrlPressed)
+    local vertScrollBarX = self:getVertScrollBarX()
+    self.zoomPower = self.zoomPower + self.velocityZoom
+    self.zoom = clamp(self.zoomBase ^ self.zoomPower, 1 / 32, 32)
+    local maxScrollX = math.max(0, vertScrollBarX - math.min(self.scissorW ^ 2 / self.w, self.scissorW - self.x + vertScrollBarX) / self.zoom)
+    local maxScrollY = math.max(0, self.scissorH - math.min(self.scissorH, self.scissorH ^ 2 / self.h) / self.zoom)
+
+    self.scrollX = clamp(self.scrollX, 0, maxScrollX)
+    self.scrollY = clamp(self.scrollY, 0, maxScrollY)
+    if shiftPressed then
+        --When holding shift, vertical scrolling is interpreted as horizontal scrolling, and horizontal scrolling is ignored.
+        if y ~= 0 then
+            self.scrollX = clamp(self.scrollX - y, 0, maxScrollX)
+        end
+    else
+        if y ~= 0 then
+            self.scrollY = clamp(self.scrollY - y, 0, maxScrollY)
+        end
+        if x ~= 0 then
+            self.scrollX = clamp(self.scrollX - x, 0, maxScrollX)
+        end
     end
 end
 
-function scrollview:mousewheel(x, y, rawX, rawY, shiftPressed, ctrlPressed)
-    local vertScrollBarX = self:getVertScrollBarX()
-    if ctrlPressed then
-        self.zoomPower = self.zoomPower + rawY
-        self.zoom = clamp(zoomBase ^ self.zoomPower, .1, 32)
-        local maxScrollX = math.max(0, vertScrollBarX - math.min(self.scissorW ^ 2 / self.w, self.scissorW - self.x + vertScrollBarX) / self.zoom)
-        local maxScrollY = math.max(0, self.scissorH - math.min(self.scissorH, self.scissorH ^ 2 / self.h) / self.zoom)
-        self.scrollX = clamp(self.scrollX, 0, maxScrollX)
-        self.scrollY = clamp(self.scrollY, 0, maxScrollY)
-    else
-        local maxScrollX = math.max(0, vertScrollBarX - math.min(self.scissorW ^ 2 / self.w, self.scissorW - self.x + vertScrollBarX) / self.zoom)
-        local maxScrollY = math.max(0, self.scissorH - math.min(self.scissorH, self.scissorH ^ 2 / self.h) / self.zoom)
-        if shiftPressed then
-            --When holding shift, vertical scrolling is interpreted as horizontal scrolling, and horizontal scrolling is ignored.
-            if y ~= 0 then
-                self.scrollX = clamp(self.scrollX - y, 0, maxScrollX)
-            end
+function scrollview.wheelmoved(x, y, shiftPressed, ctrlPressed)
+    for _, obj in pairs(scrollview.scrollviews) do
+        if ctrlPressed then
+            obj.velocityZoom = obj.velocityZoom + y * obj.zoomSpeed
         else
-            if y ~= 0 then
-                self.scrollY = clamp(self.scrollY - y, 0, maxScrollY)
-            end
-            if x ~= 0 then
-                self.scrollX = clamp(self.scrollX - x, 0, maxScrollX)
-            end
+            obj.velocityX, obj.velocityY = obj.velocityX + x * obj.scrollSpeed, obj.velocityY + y * obj.scrollSpeed
         end
     end
 end
@@ -155,25 +199,25 @@ function scrollview:mousePressed(x, y)
     local vertScrollBarX = self:getVertScrollBarX()
     local maxScrollX = math.max(0, vertScrollBarX - math.min(self.scissorW ^ 2 / self.w, self.scissorW - self.x + vertScrollBarX) / self.zoom)
     local maxScrollY = math.max(0, self.scissorH - math.min(self.scissorH, self.scissorH ^ 2 / self.h) / self.zoom)
-    local _x, _y, _w, _h = self:getScrollTrackDimensions "v"
-    local tx, ty, tw, th = self:getScrollThumbDimensions "v"
-    if x >= _x and x <= _x + _w and y >= _y and y <= _y + _h then
-        if x >= tx and x <= tx + tw and y >= ty and y <= ty + th then
+    local trackX, trackY, trackW, trackH = self:getScrollTrackDimensions "v"
+    local thumbX, thumbY, thumbW, thumbH = self:getScrollThumbDimensions "v"
+    if x >= trackX and x <= trackX + trackW and y >= trackY and y <= trackY + trackH then
+        if x >= thumbX and x <= thumbX + thumbW and y >= thumbY and y <= thumbY + thumbH then
             self.hasFocus = "v"
         else
             self.scrollY = clamp(y - self.scissorH ^ 2 / self.h / 2, 0, maxScrollY)
         end
-        scrollVelocityY = 0
+        self.velocityY = 0
     end
-    local _x, _y, _w, _h = self:getScrollTrackDimensions "h"
-    local tx, ty, tw, th = self:getScrollThumbDimensions "h"
-    if x >= _x and x <= _x + _w and y >= _y and y <= _y + _h then
-        if x >= tx and x <= tx + tw and y >= ty and y <= ty + th then
+    local trackX, trackY, trackW, trackH = self:getScrollTrackDimensions "h"
+    local thumbX, thumbY, thumbW, thumbH = self:getScrollThumbDimensions "h"
+    if x >= trackX and x <= trackX + trackW and y >= trackY and y <= trackY + trackH then
+        if x >= thumbX and x <= thumbX + thumbW and y >= thumbY and y <= thumbY + thumbH then
             self.hasFocus = "h"
         else
             self.scrollX = clamp(x - self.scissorW ^ 2 / self.w / 2, 0, maxScrollX)
         end
-        scrollVelocityX = 0
+        self.velocityX = 0
     end
 end
 
@@ -196,15 +240,39 @@ end
 
 function scrollview.mousereleased(x, y, button)
     if button ~= 1 then
-        return
+        return -- Focus should only be lost on left clicks.
     end
     for _, v in pairs(scrollview.scrollviews) do
         v:mouseReleased(x, y)
     end
 end
 
-function scrollview:mouseReleased(x, y)
+function scrollview:mouseReleased(_, _)
     self.hasFocus = false
+end
+
+function scrollview.update(dt, shiftPressed, ctrlPressed)
+    for _, obj in pairs(scrollview.scrollviews) do
+        -- Prevent the user letting go or pressing shift from switching scroll direction with leftover velocity.
+        if lastShiftPressed ~= shiftPressed then
+            obj.velocityX = 0
+            obj.velocityY = 0
+        end
+        -- Prevent the user letting go or pressing ctrl from switching to/from zoom with leftover velocity.
+        if lastCtrlPressed ~= ctrlPressed then
+            obj.velocityZoom = 0
+        end
+        --Scroll, then update velocity
+        obj:mousewheel(obj.velocityX * math.abs(obj.velocityX) * dt,
+            obj.velocityY * math.abs(obj.velocityY) * dt, shiftPressed, ctrlPressed)
+        local mult = math.min(dt * obj.scrollSpeed / 2, 1)
+        obj.velocityX = obj.velocityX - obj.velocityX * mult ^ obj.scrollAccelerationPower
+        obj.velocityY = obj.velocityY - obj.velocityY * mult ^ obj.scrollAccelerationPower
+        local zoomMult = math.min(dt * obj.zoomSpeed / 2, 1)
+        obj.velocityZoom = obj.velocityZoom - obj.velocityZoom * zoomMult ^ obj.zoomAccelerationPower
+    end
+    lastShiftPressed = shiftPressed
+    lastCtrlPressed = ctrlPressed
 end
 
 return setmetatable(scrollview, { __call = scrollview.new, __index = object })

@@ -8,13 +8,18 @@ end
 local colorpicker = { type = "colorpicker" }
 local colorpickers = setmetatable({}, { __mode = "v" })
 colorpicker.colorpickers = colorpickers
---Preferably, the following should add up to .95, to leave .5 for the label.
+--Preferably, the following should add up to 1, so the width is correct.
 local squareWidth = .5
 local squarePadding = .025
 local hueBarWidth = .05
+local sliderPadding = .015
+local sliderWidth = .27
 local labelPadding = .05
-local sliderPadding = .025
-local sliderWidth = .3
+local labelWidth = .09
+do
+    local totalWidth = squareWidth + squarePadding + hueBarWidth + sliderPadding + sliderWidth + labelPadding + labelWidth
+    assert(1 - totalWidth < 1e-7, ("Width of the colorpicker is incorrect! Should be 1, is %.3f."):format(totalWidth))
+end
 
 --- Local function used by left and right pad. Returns the pad string needed.
 local function _getPad(str, len, padChar)
@@ -138,37 +143,37 @@ function colorpicker.new(_, args)
         y = obj.y,
         group = "colorpicker" .. obj.id
     }
-    obj.hueLabel.w = obj.hueLabel.style.font:getWidth "H: 255" + 10
+    obj.hueLabel.w = obj.w * labelWidth
     obj.saturationLabel = gooi.newLabel {
         x = obj.x + obj.w * (squareWidth + squarePadding + hueBarWidth + sliderWidth + labelPadding),
         y = obj.y + obj.h * .175,
         group = "colorpicker" .. obj.id
     }
-    obj.saturationLabel.w = obj.saturationLabel.style.font:getWidth "S: 255" + 10
+    obj.saturationLabel.w = obj.w * labelWidth
     obj.valueLabel = gooi.newLabel {
         x = obj.x + obj.w * (squareWidth + squarePadding + hueBarWidth + sliderWidth + labelPadding),
         y = obj.y + obj.h * .35,
         group = "colorpicker" .. obj.id
     }
-    obj.valueLabel.w = obj.valueLabel.style.font:getWidth "V: 255" + 10
+    obj.valueLabel.w = obj.w * labelWidth
     obj.rLabel = gooi.newLabel {
         x = obj.x + obj.w * (squareWidth + squarePadding + hueBarWidth + sliderWidth + labelPadding),
         y = obj.y + obj.h * .525,
         group = "colorpicker" .. obj.id
     }
-    obj.rLabel.w = obj.rLabel.style.font:getWidth "R: 255" + 10
+    obj.rLabel.w = obj.w * labelWidth
     obj.gLabel = gooi.newLabel {
         x = obj.x + obj.w * (squareWidth + squarePadding + hueBarWidth + sliderWidth + labelPadding),
         y = obj.y + obj.h * .7,
         group = "colorpicker" .. obj.id
     }
-    obj.gLabel.w = obj.gLabel.style.font:getWidth "G: 255" + 10
+    obj.gLabel.w = obj.w * labelWidth
     obj.bLabel = gooi.newLabel {
         x = obj.x + obj.w * (squareWidth + squarePadding + hueBarWidth + sliderWidth + labelPadding),
         y = obj.y + obj.h * .875,
         group = "colorpicker" .. obj.id
     }
-    obj.bLabel.w = obj.bLabel.style.font:getWidth "B: 255" + 10
+    obj.bLabel.w = obj.w * labelWidth
     obj.hueSlider = gooi.newSlider {
         value = obj.hue / 360,
         x = obj.x + obj.w * (squareWidth + squarePadding + hueBarWidth + sliderPadding),

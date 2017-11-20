@@ -8,9 +8,6 @@ local largeFont = love.graphics.newFont(24)
 local menuBarColor = { 12, 183, 242 }
 local sideBarColor = { 12, 165, 219 }
 local propertiesColor = { 12, 150, 196 }
-local lightBackgroundColor = { 150, 150, 150 }
-local darkBackgroundColor = { 100, 100, 100 }
-local squareSize = 10
 
 spriteAreaSize = .75
 
@@ -80,20 +77,6 @@ buttons:add(addSprite, addSpriteOverlay, remove, attach, detach)
 local function drawBackground()
     local oldColor = { love.graphics.getColor() }
     love.graphics.setScissor(0, fileButton.h, w * .75, h - fileButton.h)
-    local start, lightGray = false, false
-    for x = 0, w * .75, squareSize do
-        lightGray = start
-        start = not start
-        for y = fileButton.h, h, squareSize do
-            if lightGray then
-                love.graphics.setColor(unpack(lightBackgroundColor))
-            else
-                love.graphics.setColor(unpack(darkBackgroundColor))
-            end
-            love.graphics.rectangle("fill", x, y, squareSize, squareSize)
-            lightGray = not lightGray
-        end
-    end
     love.graphics.setScissor()
     love.graphics.setColor(unpack(sideBarColor))
     love.graphics.rectangle("fill", w * spriteAreaSize, 0, w * (1 - spriteAreaSize), h)
