@@ -34,7 +34,7 @@ function love.load(arg)
     picker = colorpicker {
         x = 50,
         y = 50,
-        w = 300,
+        w = 500,
         h = 300,
         visible = false
     }

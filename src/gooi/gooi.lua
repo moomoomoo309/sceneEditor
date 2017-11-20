@@ -436,7 +436,7 @@ function gooi.newSlider(params)
             end
             self.value = 1 - self.displacement / (self.h - self.w)
         end
-        if oldValue == self.value and type(self.callback) == "function" then
+        if oldValue ~= self.value and type(self.callback) == "function" then
             self:callback()
         end
     end
@@ -1958,12 +1958,7 @@ function gooi.update(dt)
         end
         if c.enabled and c.visible and (c.pressed or c.touch) then
             if c.type == "slider" then
-                local t = c.touch
-                if t then
-                    c:updateGUI()
-                else
-                    c:updateGUI()
-                end
+                c:updateGUI()
             elseif c.type == "joystick" then
                 c:move()
             elseif c.type == "spinner" then
