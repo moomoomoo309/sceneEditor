@@ -18,7 +18,7 @@ local labelPadding = .05
 local labelWidth = .09
 do
     local totalWidth = squareWidth + squarePadding + hueBarWidth + sliderPadding + sliderWidth + labelPadding + labelWidth
-    assert(1 - totalWidth < 1e-7, ("Width of the colorpicker is incorrect! Should be 1, is %.3f."):format(totalWidth))
+    assert(math.abs(1 - totalWidth) < 1e-7, ("Width of the colorpicker is incorrect! Should be 1, is %.3f."):format(totalWidth))
 end
 
 --- Local function used by left and right pad. Returns the pad string needed.

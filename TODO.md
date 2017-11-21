@@ -2,12 +2,13 @@
 ### GUI
 - In any order:
   - Make pseudo-dropdowns for menu bar
-  - Test scrollview - Done
-  - Add textinput fields to bettercolorpicker
+    - On click, buttons are created, essentially.
+  - ~~Test scrollview~~
+  - Add textinput fields to bettercolorpicker **IN PROGRESS**
   - Add sprite rendering
 - After pseudo-dropdowns for menu bar:
   - Implement menu bar options
-- After scrollview testing: - Done
+- ~~After scrollview testing:~~
   - Finish properties
     - After finishing properties:
       - Add widget properties file for classes in properties
