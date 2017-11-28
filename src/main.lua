@@ -14,7 +14,7 @@ local scrollView
 
 function love.load(arg)
     if arg and arg[#arg] == "-ideadebug" then package.path=[[/home/nicholasdelello/.IntelliJIdea2017.3/config/plugins/Lua/mobdebug/?.lua;]]  ..  package.path arg[#arg] = "-debug" end
-    if arg and arg[#arg] == "-debug" then require("mobdebug").start() require"mobdebug".off() end
+    if arg and arg[#arg] == "-debug" then require "mobdebug".start() require "mobdebug".off() end
     love.window.setTitle "Scene Editor"
     handSprite = sprite {
         w = 2460,
