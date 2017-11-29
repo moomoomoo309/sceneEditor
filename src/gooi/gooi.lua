@@ -45,9 +45,9 @@ local circleRes = 30
 function gooi.newLabel(params)
     params = params or {}
     local l = {}
-    defaultText = "new label"
+    local defaultText = "new label"
 
-    x, y, w, h = gooi.checkBounds(
+    local x, y, w, h = gooi.checkBounds(
     params.text or defaultText,
         params.x or 10,
         params.y or 10,
@@ -185,7 +185,7 @@ function gooi.newButton(params)
     local defaultText = "new button"
     local theH = gooi.getFont():getHeight()
 
-    x, y, w, h = gooi.checkBounds(
+    local x, y, w, h = gooi.checkBounds(
     params.text or defaultText,
         params.x or 10,
         params.y or 10,
@@ -314,7 +314,7 @@ function gooi.newSlider(params)
     params = params or {}
     local s = {}
 
-    x, y, w, h = gooi.checkBounds(
+    local x, y, w, h = gooi.checkBounds(
     params.value or 0.5,
         params.x or 10,
         params.y or 10,
@@ -477,7 +477,7 @@ function gooi.newCheck(params)
     params = params or {}
     local chb = {}
 
-    x, y, w, h = gooi.checkBounds(
+    local x, y, w, h = gooi.checkBounds(
     params.text or "",
         params.x or 10,
         params.y or 10,
@@ -537,7 +537,7 @@ function gooi.newRadio(params)
     params = params or {}
     local r = {}
 
-    x, y, w, h = gooi.checkBounds(
+    local x, y, w, h = gooi.checkBounds(
     params.text or "",
         params.x or 10,
         params.y or 10,
@@ -614,7 +614,7 @@ function gooi.newText(params)
     local f = {}
     local defaultText = "Type here"
 
-    x, y, w, h = gooi.checkBounds(
+    local x, y, w, h = gooi.checkBounds(
     params.text or defaultText,
         params.x or 10,
         params.y or 10,
@@ -868,7 +868,7 @@ function gooi.newBar(params)
     params = params or {}
     local p = {}
 
-    x, y, w, h = gooi.checkBounds(
+    local x, y, w, h = gooi.checkBounds(
     "..........",
         params.x or 10,
         params.y or 10,
@@ -997,7 +997,7 @@ function gooi.newSpinner(params)
     params = params or {}
     local s = {}
 
-    x, y, w, h = gooi.checkBounds(
+    local x, y, w, h = gooi.checkBounds(
     "..........",
         params.x or 10,
         params.y or 10,
@@ -1129,7 +1129,7 @@ function gooi.newJoy(params)
     local s = {}
     local defSize = gooi.unit * 4
 
-    x, y, w, h = gooi.checkBounds(
+    local x, y, w, h = gooi.checkBounds(
     "..........",
         params.x or 10,
         params.y or 10,
@@ -1357,7 +1357,7 @@ function gooi.newKnob(params)
     local k = {}
     local defSize = gooi.unit * 3
 
-    x, y, w, h = gooi.checkBounds(
+    local x, y, w, h = gooi.checkBounds(
     "..........",
         params.x or 10,
         params.y or 10,
@@ -1482,7 +1482,7 @@ function gooi.newPanel(params)
     local p = {}
     local defLayout = "grid 3x3"
 
-    x, y, w, h = gooi.checkBounds(
+    local x, y, w, h = gooi.checkBounds(
     "..........",
         params.x or 10,
         params.y or 10,
@@ -1722,8 +1722,8 @@ function gooi.dialog(params, kind)
         local negativeBtnTxt = "Cancel"
 
         gooi.dialogMsg = params.text or "message"
-        fPositive = params.ok
-        fNegative = params.cancel
+        local fPositive = params.ok
+        local fNegative = params.cancel
         positiveBtnTxt = params.okText or positiveBtnTxt
         negativeBtnTxt = params.cancelText or negativeBtnTxt
 
@@ -1998,9 +1998,9 @@ function gooi.draw(group)
     local prevLineS = love.graphics.getLineStyle()
     local prevR, prevG, prevB, prevA = love.graphics.getColor()
 
-    local noButton, okButton, yesButton, msgLbl = nil, nil, nil, nil
+    local noButton, okButton, yesButton, msgLbl
 
-    local compWithTooltip = nil -- Just for desktop.
+    local compWithTooltip -- Just for desktop.
 
     love.graphics.setColor(255, 255, 255)
     love.graphics.setLineWidth(gooi.unit / 10)
@@ -2143,7 +2143,7 @@ end
 
 function gooi.toRGBA(hex)
     hex = hex:gsub("#", "")
-    color = { tonumber("0x" .. hex:sub(1, 2)), tonumber("0x" .. hex:sub(3, 4)), tonumber("0x" .. hex:sub(5, 6)) }
+    local color = { tonumber("0x" .. hex:sub(1, 2)), tonumber("0x" .. hex:sub(3, 4)), tonumber("0x" .. hex:sub(5, 6)) }
     if string.len(hex) >= 8 then
         table.insert(color, tonumber("0x" .. hex:sub(7, 8)))
     end
@@ -2151,7 +2151,7 @@ function gooi.toRGBA(hex)
 end
 
 function gooi.getByType(theType)
-    g = {}-- Group.
+    local g = {} -- Group.
     for k, c in pairs(gooi.components) do
         if c.type == theType then
             table.insert(g, c)
@@ -2185,7 +2185,7 @@ function gooi.setGroupEnabled(group, b)
 end
 
 function gooi.getByGroup(group)
-    g = {}-- Group.
+    local g = {} -- Group.
     for k, c in pairs(gooi.components) do
         if c.group == group then
             table.insert(g, c)
@@ -2195,7 +2195,7 @@ function gooi.getByGroup(group)
 end
 
 function gooi.getByGroupAndType(group, theType)
-    g = {}-- Group.
+    local g = {} -- Group.
     for k, c in pairs(gooi.components) do
         if c.group == group and c.type == theType then
             table.insert(g, c)
@@ -2314,7 +2314,7 @@ function gooi.released(id, xt, yt)
 end
 ---------------------------------------------------------------------------------------------
 function gooi.getCompWithTouch(id)
-    local comp = nil
+    local comp
     for k, c in pairs(gooi.components) do
         if c.touch then
             if c.touch.id == id then
@@ -2331,7 +2331,7 @@ function gooi.getCompWithTouch(id)
 end
 
 function gooi.updateFocus()
-    local comp = nil
+    local comp
     for k, c in pairs(gooi.components) do
         if c:overIt() and (c.pressed or c.touch) then
             c.hasFocus = true
@@ -2409,7 +2409,7 @@ end
 
 -- Get the focused component (for non touchscreens):
 function gooi.getFocused()
-    local comp = nil
+    local comp
     for k, c in pairs(gooi.components) do
         if c.hasFocus then
             comp = c
@@ -2452,7 +2452,8 @@ function split(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
-    local t = {}; i = 1
+    local t = {}
+    local i = 1
     for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
         t[i] = str
         i = i + 1

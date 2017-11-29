@@ -1,57 +1,41 @@
 local object = require "object"
+require "gooi"
 
-local properties = {}
+local properties = { properties = setmetatable({}, { __mode = "v" }) }
 
---- "Walks" through a table, I.E. Iterates through an N-deep table as if it were a flat table. Returns key(s) and value.
---- Use it like pairs() or ipairs() in a for loop. The key(s) will always be in a table.
-local function walk(tbl)
-    local indices = {}
-    local indicesLen = 1
-    local function appendKey(indices, indicesLen, key)
-        --Always return copies of the table, since it will be modified within the coroutine.
-        local newIndices = {}
-        for i = 1, indicesLen - 1 do
-            newIndices[i] = indices[i]
-        end
-        --Append key, but since no more values will be appended to this copy, indicesLen does not need to be incremented.
-        newIndices[indicesLen] = key
-        return newIndices
+function properties.id()
+    local id = 0
+    while properties.properties[id] do
+        id = id + 1
     end
-
-    local searchTblWrapper
-
-    local function searchTbl(tbl, indices, indicesLen)
-        --Make a copy of indices, so each reference frame of this function has its own copy of indices.
-        local indicesCopy = {}
-        for i = 1, indicesLen - 1 do
-            indicesCopy[i] = indices[i]
-        end
-        for k, v in pairs(tbl) do
-            if type(v) == "table" then
-                indicesCopy[indicesLen] = k --Add the current key into the indices.
-                for _ in searchTblWrapper(v, indicesCopy, indicesLen + 1), v, nil do
-                    doNothing() --IntelliJ doesn't like empty for loops, even though it makes shorter code in this case.
-                end
-            else
-                coroutine.yield(appendKey(indicesCopy, indicesLen, k), v)
-            end
-        end
-    end
-
-    searchTblWrapper = function(tbl, indices, indicesLen)
-        return function()
-            searchTbl(tbl, indices, indicesLen)
-        end
-    end
-
-    return coroutine.wrap(searchTblWrapper(tbl, indices, indicesLen)), tbl, nil
+    return id
 end
 
---- This is what you would give the results from table.indexOf() to.
---- The first argument should be the table being accessed, the following arguments should be the indices in order.
---- Example use: To access tbl.bacon[a][5].c, use "getTblVal(tbl,unpack{"bacon",a,5,"c"})" or "getTblVal(tbl,"bacon",a,5,"c")"
-local function getTblVal(...)
-    return select("#", ...) >= 3 and tablex.get((...)[select(2, ...)], select(3, ...)) or (...)[select(2, ...)]
+--- Works like string.find, but from the back to the front. If you're using a lua pattern, make the lua pattern work for the reversed string.
+local function findLast(str, char, index, plain)
+    local lastIndex, lastIndexEnd = str:reverse():find((plain and char:reverse() or char), index, plain)
+    return lastIndex and #str - lastIndexEnd + 1, #str - lastIndex + 1
+end
+
+
+function properties.getDisplayName(imagePath)
+    local slashIndex, dotIndex = findLast(imagePath, "/", nil, true), findLast(imagePath, ".", nil, true)
+    return imagePath:sub(slashIndex and slashIndex + 1 or 0, dotIndex and dotIndex - 1 or -1)
+end
+
+function properties.onPressed()
+    for _, prop in pairs(properties.properties) do
+        for _, btn in pairs(prop.btns) do
+            properties.buttonOnPressed(btn)
+        end
+    end
+end
+
+function properties.buttonOnPressed(btn)
+    local spr = btn.sprite
+    if spr.overlays and #spr.overlays > 0 then
+        btn.children = #btn.children > 0 and {} or spr.overlays
+    end
 end
 
 function properties.new(_, args)
@@ -61,7 +45,10 @@ function properties.new(_, args)
         w = args.w or 0,
         h = args.h or 0,
         sprites = args.sprites or {},
-        open = {}
+        btns = {},
+        labels = {},
+        inputs = {},
+        panel = nil
     }
     assert(type(obj.x) == "number", ("Number expected, got %s."):format(type(obj.x)))
     assert(type(obj.y) == "number", ("Number expected, got %s."):format(type(obj.y)))
@@ -69,6 +56,27 @@ function properties.new(_, args)
     assert(type(obj.h) == "number", ("Number expected, got %s."):format(type(obj.h)))
     assert(type(obj.sprites) == "table", ("Table expected, got %s."):format(type(obj.sprites)))
     obj.class = properties
+    obj.panel = gooi.newPanel {
+        x = obj.x,
+        y = obj.y,
+        w = obj.w,
+        h = obj.h,
+        id = properties.id(),
+        layout = "grid " .. #obj.sprites .. "x3"
+    }
+    obj.panel.group = "propertiespanel" .. obj.id
+    obj.btns = {}
+    obj.spacers = {}
+    for i = 1, #obj.sprites do
+        local v = obj.sprites[i]
+        assert(v.type and v.type == "sprite", ("Sprite expected, got %s."):format(type(v) == "table" and v.type or type(v)))
+        obj.btns[i] = gooi.newbutton {
+            text = properties.getDisplayName(v.imagePath)
+        }
+        obj.btns[i].sprite = v
+        obj.btns[i].children = {}
+    end
+    return obj
 end
 
 return setmetatable(properties, { __index = object, __call = properties.new })

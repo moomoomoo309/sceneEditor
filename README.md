@@ -4,5 +4,5 @@ See Code Style.md for how the code should be formatted, and general code style g
 
 Dependencies:
 - Love2D
-- GUI Library not decided
-- Other Libraries not decided
+- GUI Library: GOOI
+- Other Libraries: Penlight
