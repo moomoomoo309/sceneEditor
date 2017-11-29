@@ -10,6 +10,9 @@ local lastShiftPressed = false
 local lastCtrlPressed = false
 
 local function clamp(num, min, max)
+    if min > max then
+        min, max = max, min
+    end
     return math.max(min, math.min(max, num))
 end
 
@@ -41,6 +44,7 @@ function scrollview.new(_, args)
         lightBackgroundColor = args.lightBackgroundColor or { 150, 150, 150 },
         darkBackgroundColor = args.darkBackgroundColor or { 100, 100, 100 },
         squareSize = args.squareSize or 10,
+        checkerboardCanvas = nil
     }
     obj.zoomPower = math.log(obj.zoom) / math.log(obj.zoomBase)
     obj.class = scrollview
@@ -88,22 +92,28 @@ function scrollview:getHorizScrollBarY()
 end
 
 function scrollview:drawCheckerboard()
-    local oldColor = { love.graphics.getColor() }
-    local start, lightGray = false, false
-    for x = self.x, self.x + self.scissorW, self.squareSize do
-        lightGray = start
-        start = not start
-        for y = self.y, self.y + self.scissorH, self.squareSize do
-            if lightGray then
-                love.graphics.setColor(unpack(self.lightBackgroundColor))
-            else
-                love.graphics.setColor(unpack(self.darkBackgroundColor))
+    if not self.checkerboardCanvas then
+        self.checkerboardCanvas = love.graphics.newCanvas(love.graphics.getDimensions())
+        love.graphics.setCanvas(self.checkerboardCanvas)
+        local oldColor = { love.graphics.getColor() }
+        local start, lightGray = false, false
+        for x = self.x, self.x + self.scissorW, self.squareSize do
+            lightGray = start
+            start = not start
+            for y = self.y, self.y + self.scissorH, self.squareSize do
+                if lightGray then
+                    love.graphics.setColor(unpack(self.lightBackgroundColor))
+                else
+                    love.graphics.setColor(unpack(self.darkBackgroundColor))
+                end
+                love.graphics.rectangle("fill", x, y, self.squareSize, self.squareSize)
+                lightGray = not lightGray
             end
-            love.graphics.rectangle("fill", x, y, self.squareSize, self.squareSize)
-            lightGray = not lightGray
         end
+        love.graphics.setColor(unpack(oldColor))
+        love.graphics.setCanvas()
     end
-    love.graphics.setColor(unpack(oldColor))
+    love.graphics.draw(self.checkerboardCanvas)
 end
 
 function scrollview:draw(drawFct)
@@ -155,6 +165,9 @@ end
 function scrollview:mousewheel(x, y, shiftPressed, ctrlPressed)
     local vertScrollBarX = self:getVertScrollBarX()
     self.zoomPower = self.zoomPower + self.velocityZoom
+    if self.zoom <= 1 / 32 or self.zoom >= 32 then
+        self.velocityZoom = 0
+    end
     self.zoom = clamp(self.zoomBase ^ self.zoomPower, 1 / 32, 32)
     local maxScrollX = math.max(0, vertScrollBarX - math.min(self.scissorW ^ 2 / self.w, self.scissorW - self.x + vertScrollBarX) / self.zoom)
     local maxScrollY = math.max(0, self.scissorH - math.min(self.scissorH, self.scissorH ^ 2 / self.h) / self.zoom)

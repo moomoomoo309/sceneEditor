@@ -13,11 +13,11 @@ spriteAreaSize = .75
 
 local w, h = love.graphics.getDimensions()
 
-fileButton = gooi.newButton({
+fileButton = gooi.newButton {
     x = 2.5,
     y = 0,
     text = "File"
-})
+}
 
 properties = gooi.newPanel {
     x = w * (spriteAreaSize + .005),
@@ -74,17 +74,25 @@ detach.style.font = largeFont
 
 buttons:add(addSprite, addSpriteOverlay, remove, attach, detach)
 
+local backgroundCanvas
+
 local function drawBackground()
-    local oldColor = { love.graphics.getColor() }
-    love.graphics.setScissor(0, fileButton.h, w * .75, h - fileButton.h)
-    love.graphics.setScissor()
-    love.graphics.setColor(unpack(sideBarColor))
-    love.graphics.rectangle("fill", w * spriteAreaSize, 0, w * (1 - spriteAreaSize), h)
-    love.graphics.setColor(unpack(menuBarColor))
-    love.graphics.rectangle("fill", 0, 0, w, fileButton.h)
-    love.graphics.setColor(unpack(propertiesColor))
-    love.graphics.rectangle("fill", properties.x, fileButton.h + h * .0075, properties.w, properties.h)
-    love.graphics.setColor(unpack(oldColor))
+    if not backgroundCanvas then
+        backgroundCanvas = love.graphics.newCanvas(w, h)
+        love.graphics.setCanvas(backgroundCanvas)
+        local oldColor = { love.graphics.getColor() }
+        love.graphics.setScissor(0, fileButton.h, w * .75, h - fileButton.h)
+        love.graphics.setScissor()
+        love.graphics.setColor(unpack(sideBarColor))
+        love.graphics.rectangle("fill", w * spriteAreaSize, 0, w * (1 - spriteAreaSize), h)
+        love.graphics.setColor(unpack(menuBarColor))
+        love.graphics.rectangle("fill", 0, 0, w, fileButton.h)
+        love.graphics.setColor(unpack(propertiesColor))
+        love.graphics.rectangle("fill", properties.x, fileButton.h + h * .0075, properties.w, properties.h)
+        love.graphics.setColor(unpack(oldColor))
+        love.graphics.setCanvas()
+    end
+    love.graphics.draw(backgroundCanvas)
 end
 
 return { drawBackground = drawBackground }
