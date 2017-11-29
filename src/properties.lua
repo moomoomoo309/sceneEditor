@@ -33,8 +33,66 @@ end
 
 function properties.buttonOnPressed(btn)
     local spr = btn.sprite
+    local btns = btn.properties.btns
     if spr.overlays and #spr.overlays > 0 then
-        btn.children = #btn.children > 0 and {} or spr.overlays
+        if #btn.children + 1 == #btns then
+            for i = 1, #btn.children do --No need to move later buttons, just put them on the end.
+                btns[#btns] = btn.children[i]
+            end
+        else
+            btn.children = #btn.children > 0 and {} or spr.overlays
+            local newButtons = {}
+            local addedHeight = 0
+            for i = 1, #btn.children do
+                newButtons[i] = gooi.newButton {
+                    x = btn.properties.x + btn.properties.btnSpacing,
+                    y = i == 1 and btn.y + btn.h or newButtons[i - 1].y + newButtons[i - 1].h
+                }
+                addedHeight = addedHeight + i == 1 and btn.h or newButtons[i - 1].h
+            end
+            local btnIndex
+            for i = #btns, 1, -1 do
+                btns[i].y = btns[i].y + addedHeight
+                if btns[i] == btn then
+                    btnIndex = i
+                    break
+                end
+            end
+            for i = #btns + #newButtons, btnIndex, -1 do
+                btns[btnIndex + i + #newButtons] = btns[btnIndex + i]
+                if i <= btnIndex + #newButtons then
+                    btns[btnIndex + i] = newButtons[i]
+                end
+            end
+        end
+    else
+        if #btn.children + 1 == #btns then --No need to move later buttons, just pop off the end.
+            for i = #btn.children, 1, -1 do
+                btn.children[#btn.children] = nil
+                btns[#btns] = nil
+            end
+        else
+            local removedHeight = 0
+            for i = 1, #btn.children do
+                removedHeight = removedHeight + btn.children[i].h
+            end
+            local btnIndex
+            local btnLen = #btns
+            local numChildren = #btn.children
+            for i = 1, #btns do
+                if btns[i] == btn then
+                    btnIndex = i
+                    break
+                end
+            end
+            for i = 1, #numChildren do
+                btns[btnIndex + i] = nil
+            end
+            for i = btnIndex, btnLen - numChildren do
+                btns[i] = btns[i + btnLen]
+                btns[i].y = btns[i].y - removedHeight
+            end
+        end
     end
 end
 
@@ -48,6 +106,7 @@ function properties.new(_, args)
         btns = {},
         labels = {},
         inputs = {},
+        btnSpacing = 5,
         panel = nil
     }
     assert(type(obj.x) == "number", ("Number expected, got %s."):format(type(obj.x)))
@@ -62,18 +121,18 @@ function properties.new(_, args)
         w = obj.w,
         h = obj.h,
         id = properties.id(),
-        layout = "grid " .. #obj.sprites .. "x3"
     }
-    obj.panel.group = "propertiespanel" .. obj.id
     obj.btns = {}
     obj.spacers = {}
     for i = 1, #obj.sprites do
         local v = obj.sprites[i]
         assert(v.type and v.type == "sprite", ("Sprite expected, got %s."):format(type(v) == "table" and v.type or type(v)))
         obj.btns[i] = gooi.newbutton {
-            text = properties.getDisplayName(v.imagePath)
+            text = properties.getDisplayName(v.imagePath),
+            x = obj.x,
+            y = obj.y + i > 1 and obj.btns[i - 1].h or 0
         }
-        obj.btns[i].sprite = v
+        obj.btns[i].properties = obj
         obj.btns[i].children = {}
     end
     return obj
